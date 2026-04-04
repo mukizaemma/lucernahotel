@@ -253,6 +253,19 @@ class HomeController extends Controller
             $children = (int) ($request->input('children') ?? 0);
             $extraBeds = (int) ($request->input('extra_beds') ?? 0);
             $roomCount = max(1, (int) ($request->input('rooms') ?? 1));
+
+            // Enforce max occupancy per room:
+            // If guests exceed `max_occupancy`, suggest/require booking more rooms.
+            $maxGuestsPerRoom = (int) ($room->max_occupancy ?? 0);
+            $totalGuests = $adults + $children;
+            if ($maxGuestsPerRoom > 0 && $totalGuests > ($maxGuestsPerRoom * $roomCount)) {
+                $suggestedRooms = (int) ceil($totalGuests / $maxGuestsPerRoom);
+
+                return redirect()->back()
+                    ->with('error', "Your selected number of rooms can’t accommodate {$totalGuests} guests. Please set “Number of Rooms” to at least {$suggestedRooms}.")
+                    ->withInput();
+            }
+
             $nightly = $room->nightlyRateForGuests($adults, $children, $extraBeds);
             $booking->total_amount = (int) round($nightly * $nights * $roomCount);
             $booking->balance_amount = $booking->total_amount;
@@ -403,6 +416,8 @@ class HomeController extends Controller
             $rules['checkout_date'] = 'required|date|after:checkin_date';
             $rules['adults'] = 'required|integer|min:1';
             $rules['children'] = 'nullable|integer|min:0';
+            $rules['rooms'] = 'nullable|integer|min:1';
+            $rules['extra_beds'] = 'nullable|integer|min:0';
             $rules['message'] = 'nullable|string|max:5000';
         }
 
@@ -434,6 +449,21 @@ class HomeController extends Controller
             $payload['children'] = isset($validated['children']) ? (int) $validated['children'] : 0;
             $payload['subject'] = $room ? 'Room enquiry: '.$room->title : 'Room enquiry';
             $payload['message'] = $validated['message'] ?? null;
+
+            // Keep these extra fields consistent with the room booking form.
+            // We store them inside the message text to avoid changing the message schema.
+            $requestedRooms = (int) ($validated['rooms'] ?? 1);
+            $extraBeds = (int) ($validated['extra_beds'] ?? 0);
+            $extraLines = [];
+            if ($requestedRooms > 1) {
+                $extraLines[] = 'Number of Rooms: ' . $requestedRooms;
+            }
+            if ($extraBeds > 0) {
+                $extraLines[] = 'Extra beds requested: ' . $extraBeds;
+            }
+            if (!empty($extraLines)) {
+                $payload['message'] = trim(($payload['message'] ?? '') . "\n" . implode("\n", $extraLines));
+            }
         }
 
         $message = Message::create($payload);
@@ -460,8 +490,63 @@ class HomeController extends Controller
 
         return redirect()->back()->with('success', 'Thank you for reaching out — we will get back to you soon.');
     }
-    
-    
+
+    public function submitProposal(Request $request)
+    {
+        $validated = $request->validate([
+            'proposal_source' => 'required|in:meetings,dining',
+            'names' => 'required|string|max:255',
+            'phone' => 'required|string|max:60',
+            'email' => 'required|email|max:255',
+            'preferred_date' => 'required|date|after_or_equal:today',
+            'event_type' => 'nullable|string|max:64',
+            'party_size' => 'nullable|integer|min:1',
+        ]);
+
+        $label = $validated['proposal_source'] === 'dining' ? 'Dining' : 'Meetings & events';
+        $subject = 'Proposal request — '.$label;
+
+        $lines = [
+            'Preferred date: '.$validated['preferred_date'],
+        ];
+        if (filled($validated['event_type'] ?? null)) {
+            $lines[] = 'Event type: '.$validated['event_type'];
+        }
+        if (array_key_exists('party_size', $validated) && $validated['party_size'] !== null) {
+            $lines[] = 'Party size: '.$validated['party_size'];
+        }
+        $lines[] = 'Source: '.$label;
+
+        $message = Message::create([
+            'enquiry_type' => 'proposal',
+            'names' => $validated['names'],
+            'phone' => $validated['phone'],
+            'email' => $validated['email'],
+            'subject' => $subject,
+            'message' => implode("\n", $lines),
+        ]);
+
+        $setting = Setting::first();
+        $adminEmail = $setting?->email ?: config('mail.from.address');
+
+        if (filled($adminEmail)) {
+            try {
+                Mail::to($adminEmail)->send(new ContactEnquiryAdminMail($message));
+            } catch (\Throwable $e) {
+                Log::error('Proposal enquiry admin email failed', ['exception' => $e]);
+            }
+        }
+
+        try {
+            Mail::to($message->email)->send(new ContactEnquiryGuestMail($message));
+        } catch (\Throwable $e) {
+            Log::error('Proposal enquiry guest email failed', ['exception' => $e]);
+        }
+
+        return redirect()->back()
+            ->with('success', 'Thank you — we received your request and will follow up shortly.')
+            ->with('proposal_flash', true);
+    }
 
     public function testimony(Request $request){
 

@@ -236,21 +236,25 @@ class PublicWebsiteData
 
     public static function restaurant(): array
     {
-        $restaurant = Restaurant::with('images')->first();
+        $restaurant = Restaurant::with(['images', 'cuisines'])->first();
         if (! $restaurant) {
-            $restaurant = Restaurant::create([
+            Restaurant::create([
                 'title' => 'Dining',
                 'description' => 'Discover our restaurant and bar.',
             ]);
+            $restaurant = Restaurant::with(['images', 'cuisines'])->first();
         }
         $images = $restaurant->images ?? collect();
         $setting = Setting::first();
         $about = About::first();
         $pageHero = PageHero::getBySlug('dining');
 
+        $cuisines = $restaurant->cuisines ?? collect();
+
         return [
             'restaurant' => $restaurant,
             'images' => $images,
+            'cuisines' => $cuisines,
             'setting' => $setting,
             'about' => $about,
             'pageHero' => $pageHero,
@@ -351,16 +355,16 @@ class PublicWebsiteData
         $galleryImages = Gallery::where('media_type', 'image')
             ->whereNotNull('image')
             ->where('image', '!=', '')
-            ->latest()
+            ->oldest()
             ->paginate(12);
         $allGalleryImagesForLightbox = Gallery::where('media_type', 'image')
             ->whereNotNull('image')
             ->where('image', '!=', '')
-            ->latest()
+            ->oldest()
             ->get();
         $galleryVideos = Gallery::whereNotNull('youtube_link')
             ->where('youtube_link', '!=', '')
-            ->latest()
+            ->oldest()
             ->get();
         $setting = Setting::first();
         $about = About::first();

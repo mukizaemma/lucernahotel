@@ -17,7 +17,12 @@ class ContactEnquiryGuestMail extends Mailable
 
     public function build(): self
     {
-        return $this->subject('We received your message — '.config('app.name'))
+        $subject = 'We received your message — '.config('app.name');
+        if (($this->enquiry->enquiry_type ?? '') === 'proposal') {
+            $subject = 'We received your proposal request — '.config('app.name');
+        }
+
+        return $this->subject($subject)
             ->from(config('mail.from.address'), config('mail.from.name'))
             ->view('emails.contact-enquiry-guest');
     }

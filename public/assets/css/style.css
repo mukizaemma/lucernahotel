@@ -13807,6 +13807,151 @@ textarea:focus-visible, input:focus-visible {
   max-width: 52ch;
 }
 
+/* Dining — kitchen specialization cards */
+.dining-cuisines {
+  margin-top: 0.25rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+@media (min-width: 992px) {
+  .dining-cuisines {
+    padding-top: 2.25rem;
+    margin-top: 0.5rem;
+  }
+}
+
+.dining-cuisines__head {
+  margin-bottom: 2rem;
+  max-width: 46rem;
+}
+
+.dining-cuisines__head:has(.dining-cuisines__lead) {
+  margin-bottom: 2.5rem;
+}
+
+.dining-cuisines__title {
+  font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.65rem;
+}
+
+.dining-cuisines__lead {
+  color: #64748b;
+  line-height: 1.7;
+  max-width: 42rem;
+}
+
+.dining-cuisines__title + .dining-cuisines__lead {
+  margin-top: 0.5rem;
+}
+
+.dining-cuisine-card {
+  height: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.06),
+    0 12px 32px rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s ease;
+}
+
+.dining-cuisine-card:hover {
+  transform: translateY(-6px);
+  box-shadow:
+    0 4px 8px rgba(15, 23, 42, 0.08),
+    0 20px 48px rgba(15, 23, 42, 0.12);
+}
+
+.dining-cuisine-card__media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+.dining-cuisine-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.dining-cuisine-card:hover .dining-cuisine-card__media img {
+  transform: scale(1.06);
+}
+
+.dining-cuisine-card__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 0) 35%,
+    rgba(15, 23, 42, 0.55) 65%,
+    rgba(15, 23, 42, 0.88) 100%
+  );
+  pointer-events: none;
+}
+
+.dining-cuisine-card__body {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 1.15rem 1.25rem 1.25rem;
+  color: #fff;
+  z-index: 1;
+}
+
+.dining-cuisine-card__name {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0 0 0.35rem;
+  line-height: 1.25;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+}
+
+.dining-cuisine-card__summary {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  overflow: hidden;
+}
+
+@supports not (-webkit-line-clamp: 4) {
+  .dining-cuisine-card__summary {
+    display: block;
+    max-height: 5.25rem;
+    overflow: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dining-cuisine-card,
+  .dining-cuisine-card__media img {
+    transition: none;
+  }
+
+  .dining-cuisine-card:hover {
+    transform: none;
+  }
+
+  .dining-cuisine-card:hover .dining-cuisine-card__media img {
+    transform: none;
+  }
+}
+
 .page-feature__hero-img {
   position: relative;
   aspect-ratio: 16 / 10;

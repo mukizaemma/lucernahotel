@@ -26,7 +26,7 @@ class RoomManagementController extends Controller
             'description' => 'nullable|string',
             'cover_image' => 'nullable|image|max:2048',
             'category' => 'nullable|string',
-            'room_type' => 'required|in:room,apartment',
+            'number_of_rooms' => 'required|integer|min:1',
             'price' => 'required|numeric|min:0',
             'guests_included_in_price' => 'required|integer|min:1',
             'extra_adult_price' => 'nullable|numeric|min:0',
@@ -48,7 +48,9 @@ class RoomManagementController extends Controller
         $room->room_number = $request->room_number;
         $room->description = $request->description;
         $room->category = $request->category;
-        $room->room_type = $request->room_type;
+        // Rooms management now always creates "room" records (not apartments).
+        $room->room_type = 'room';
+        $room->number_of_rooms = (int) $request->input('number_of_rooms', 1);
         $room->price = $request->price;
         $room->couplePrice = null;
         $room->guests_included_in_price = $included;
@@ -94,7 +96,7 @@ class RoomManagementController extends Controller
             'description' => 'nullable|string',
             'cover_image' => 'nullable|image|max:2048',
             'category' => 'nullable|string',
-            'room_type' => 'required|in:room,apartment',
+            'number_of_rooms' => 'required|integer|min:1',
             'price' => 'required|numeric|min:0',
             'guests_included_in_price' => 'required|integer|min:1',
             'extra_adult_price' => 'nullable|numeric|min:0',
@@ -120,7 +122,9 @@ class RoomManagementController extends Controller
         $room->room_number = $request->room_number;
         $room->description = $request->description;
         $room->category = $request->category;
-        $room->room_type = $request->room_type;
+        // Rooms management now always sets "room" type.
+        $room->room_type = 'room';
+        $room->number_of_rooms = (int) $request->input('number_of_rooms', 1);
         $room->price = $request->price;
         $room->couplePrice = $preservedCouplePrice;
         $room->guests_included_in_price = $included;

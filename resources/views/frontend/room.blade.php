@@ -34,7 +34,7 @@
     <div class="container">
         <div class="row g-5 sticky-wrap">
             <!-- Room Images Carousel (Right Side) -->
-            <div class="col-lg-6 order-2 order-lg-1">
+            <div class="col-lg-7 order-2 order-lg-1 room-gallery-col">
                 <div class="room__details">
                     @php
                         // Combine cover image with gallery images
@@ -88,7 +88,7 @@
             </div>
 
             <!-- Room Details (Left Side) -->
-            <div class="col-lg-6 order-1 order-lg-2">
+            <div class="col-lg-5 order-1 order-lg-2 room-details-col">
                 <div class="room__details">
                     <div class="d-flex justify-content-between align-items-center mb-30">
                         <h2 class="room__title">{{ $room->title }}</h2>
@@ -144,8 +144,31 @@
                         @endif
                     </div>
 
-                    <!-- Amenities -->
-                    @if($amenities && $amenities->count() > 0)
+                    <!-- Amenities + description moved below (below gallery, full width). -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Room Description (full width, below gallery) -->
+        <div class="row mt-30">
+            <div class="col-12">
+                <div class="mb-30">
+                    <h4 class="mb-20">Description</h4>
+                    <div style="line-height: 1.8; color: #666;">
+                        {!! $room->description !!}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @php
+            $hasAmenities = isset($amenities) && $amenities && $amenities->count() > 0;
+        @endphp
+
+        <!-- Amenities + Booking Form (same row) -->
+        <div class="row mt-50 g-4" id="booking">
+            @if($hasAmenities)
+                <div class="col-lg-5">
                     <div class="mb-30">
                         <h4 class="mb-20">Room Amenities</h4>
                         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
@@ -157,30 +180,24 @@
                             @endforeach
                         </div>
                     </div>
-                    @endif
-
-                    <!-- Description -->
-                    <div class="mb-30">
-                        <h4 class="mb-20">Description</h4>
-                        <div style="line-height: 1.8; color: #666;">
-                            {!! $room->description !!}
-                        </div>
-                    </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Booking Form Section -->
-        <div class="row mt-50" id="booking">
-            <div class="col-lg-8 mx-auto">
-                <div class="rts__booking__form has__background" style="padding: 40px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
-                    <h3 class="mb-30 text-center">Book This Room</h3>
+                <div class="col-lg-7">
+            @else
+                <div class="col-12">
+            @endif
+                <div class="rts__booking__form has__background" style="padding: 40px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); height: 100%;">
+                    <div class="d-flex align-items-baseline justify-content-center gap-2 mb-30 flex-wrap">
+                        <h3 class="mb-0">Booking for '<span style="color: #0356b7;">{{ $room->title }}</span>'</h3>
+                        <span class="h5 mb-0" style="color: #0356b7; font-weight: 700;">
+                            - ${{ number_format($room->price ?? 0, 0) }}/Night
+                        </span>
+                    </div>
                     <form action="{{ route('bookNow') }}" method="POST" id="bookingForm">
                         @csrf
                         <input type="hidden" name="room_id" value="{{ $room->id }}">
                         
-                        <div class="row g-20">
-                            <div class="col-md-6 mb-3">
+                        <div class="row g-20 align-items-start">
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label">Check In <span class="text-danger">*</span></label>
                                 <input type="date" 
                                        id="checkin_date" 
@@ -189,7 +206,7 @@
                                        required 
                                        min="{{ date('Y-m-d') }}">
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label">Check Out <span class="text-danger">*</span></label>
                                 <input type="date" 
                                        id="checkout_date" 
@@ -198,7 +215,7 @@
                                        required 
                                        min="{{ date('Y-m-d') }}">
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label">Adults <span class="text-danger">*</span></label>
                                 <input type="number" 
                                        id="adults" 
@@ -208,7 +225,7 @@
                                        value="1" 
                                        required>
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label">Children</label>
                                 <input type="number" 
                                        id="children" 
@@ -216,8 +233,24 @@
                                        class="form-control" 
                                        min="0" 
                                        value="0">
+                                <small class="text-muted d-block mt-1">Children 6-12. 13+ counts as adult.</small>
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
+                                <div id="guest-capacity-alert" class="alert alert-warning py-2 px-3" style="display: none;">
+                                    <div class="small">
+                                        <strong>More rooms needed.</strong>
+                                        <span id="guest-capacity-alert-text"></span>
+                                    </div>
+                                    <button type="button" id="guest-capacity-apply" class="btn btn-sm btn-primary mt-2">
+                                        Set to suggested rooms
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Number of Rooms</label>
+                                <input type="number" id="book_rooms" name="rooms" class="form-control" min="1" value="1">
+                            </div>
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label">Extra beds (optional)</label>
                                 <input type="number"
                                        id="extra_beds"
@@ -225,9 +258,9 @@
                                        class="form-control"
                                        min="0"
                                        value="0">
-                                <small class="text-muted">Add-on beds; fee applies if set for this room.</small>
+                                {{-- <small class="text-muted d-block mt-1">Extra beds (if applicable).</small> --}}
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-8 mb-3">
                                 <label class="form-label">Your Name <span class="text-danger">*</span></label>
                                 <input type="text" name="names" class="form-control" required>
                             </div>
@@ -239,10 +272,6 @@
                                 <label class="form-label">Phone <span class="text-danger">*</span></label>
                                 <input type="text" name="phone" class="form-control" required>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Number of Rooms</label>
-                                <input type="number" id="book_rooms" name="rooms" class="form-control" min="1" value="1">
-                            </div>
                             <div class="col-12 mb-3">
                                 <label class="form-label">Special Requests</label>
                                 <textarea name="message" class="form-control" rows="3" placeholder="Any special requests or notes..."></textarea>
@@ -250,20 +279,20 @@
                             
                             <!-- Price Calculation Display -->
                             <div class="col-12 mb-3" style="background: #f9f9f9; padding: 20px; border-radius: 8px;">
-                                <p class="small text-muted mb-2">Estimate: base rate includes {{ (int) ($room->guests_included_in_price ?? 2) }} guest(s); extra adults/children are counted after that.</p>
+                                <p class="small text-muted mb-2">Includes up to {{ (int) ($room->guests_included_in_price ?? 2) }} guests per room.</p>
                                 <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                                     <span>Base room (per night)</span>
                                     <span id="line_base">${{ number_format($room->price ?? 0, 2) }}</span>
                                 </div>
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <div id="row_extra_adults" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                                     <span id="label_extra_adults">Extra adults</span>
                                     <span id="line_extra_adults">$0.00</span>
                                 </div>
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <div id="row_extra_children" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                                     <span id="label_extra_children">Extra children</span>
                                     <span id="line_extra_children">$0.00</span>
                                 </div>
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <div id="row_extra_beds" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                                     <span id="label_extra_beds">Extra beds</span>
                                     <span id="line_extra_beds">$0.00</span>
                                 </div>
@@ -272,15 +301,29 @@
                                     <span id="room_price_nightly"><strong>$0.00</strong></span>
                                 </div>
                                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                                    <span><strong>Number of nights × rooms</strong></span>
-                                    <span id="nights_count">0</span>
+                                    <div style="flex: 1;">
+                                        <span><strong>Nights</strong></span>
+                                        <div class="d-flex align-items-center gap-2" style="margin-top: 6px;">
+                                            <button type="button" class="btn btn-sm btn-outline-primary" id="nights_minus">-</button>
+                                            <span id="nights_count" style="min-width: 34px; text-align: center; font-weight: 600;">1</span>
+                                            <button type="button" class="btn btn-sm btn-outline-primary" id="nights_plus">+</button>
+                                        </div>
+                                    </div>
+                                    <div style="flex: 1; text-align: right;">
+                                        <span><strong>Rooms</strong></span>
+                                        <div class="d-flex align-items-center justify-content-end gap-2" style="margin-top: 6px;">
+                                            <button type="button" class="btn btn-sm btn-outline-primary" id="rooms_minus">-</button>
+                                            <span id="rooms_count" style="min-width: 34px; text-align: center; font-weight: 600;">1</span>
+                                            <button type="button" class="btn btn-sm btn-outline-primary" id="rooms_plus">+</button>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-top: 10px; border-top: 2px solid #ddd;">
                                     <span><strong>Subtotal:</strong></span>
                                     <span id="subtotal">$0.00</span>
                                 </div>
                                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                                    <span>Tax (10%):</span>
+                                    <span>VAT portion (included):</span>
                                     <span id="tax">$0.00</span>
                                 </div>
                                 <div style="display: flex; justify-content: space-between; padding-top: 10px; border-top: 2px solid #0356b7; font-size: 18px; font-weight: 600;">
@@ -291,7 +334,7 @@
 
                             <div class="col-12 text-center">
                                 <button type="submit" class="theme-btn btn-style fill" style="width: 100%; padding: 15px; font-size: 18px;">
-                                    <span>Complete Booking</span>
+                                    <span>Submit your Booking</span>
                                 </button>
                             </div>
                         </div>
@@ -310,7 +353,7 @@
         <div class="row justify-content-center text-center mb-40">
             <div class="col-lg-6">
                 <div class="section__topbar">
-                    <h2>Similar Rooms</h2>
+                    <h2>Other Rooms</h2>
                 </div>
             </div>
         </div>
@@ -367,6 +410,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const lineExtraAdults = document.getElementById('line_extra_adults');
     const lineExtraChildren = document.getElementById('line_extra_children');
     const lineExtraBeds = document.getElementById('line_extra_beds');
+    const rowExtraAdults = document.getElementById('row_extra_adults');
+    const rowExtraChildren = document.getElementById('row_extra_children');
+    const rowExtraBeds = document.getElementById('row_extra_beds');
     const labelExtraAdults = document.getElementById('label_extra_adults');
     const labelExtraChildren = document.getElementById('label_extra_children');
     const labelExtraBeds = document.getElementById('label_extra_beds');
@@ -375,6 +421,90 @@ document.addEventListener('DOMContentLoaded', function() {
     const taxEl = document.getElementById('tax');
     const totalEl = document.getElementById('total_amount');
     const nightsEl = document.getElementById('nights_count');
+    const roomsCountEl = document.getElementById('rooms_count');
+
+    const nightsMinusBtn = document.getElementById('nights_minus');
+    const nightsPlusBtn = document.getElementById('nights_plus');
+    const roomsMinusBtn = document.getElementById('rooms_minus');
+    const roomsPlusBtn = document.getElementById('rooms_plus');
+
+    const guestCapacityAlert = document.getElementById('guest-capacity-alert');
+    const guestCapacityAlertText = document.getElementById('guest-capacity-alert-text');
+    const guestCapacityApply = document.getElementById('guest-capacity-apply');
+
+    const maxGuestsPerRoom = {{ (int) ($room->max_occupancy ?? 0) }};
+    let suggestedRoomsForCapacity = 1;
+
+    let nightsValue = 1;
+
+    function pad2(n) {
+        return String(n).padStart(2, '0');
+    }
+
+    function formatDateInputValue(date) {
+        return date.getFullYear() + '-' + pad2(date.getMonth() + 1) + '-' + pad2(date.getDate());
+    }
+
+    function getNightsFromDates() {
+        if (!checkinInput?.value || !checkoutInput?.value) return null;
+        const checkinDate = new Date(checkinInput.value + 'T00:00:00');
+        const checkoutDate = new Date(checkoutInput.value + 'T00:00:00');
+        if (!(checkoutDate > checkinDate)) return null;
+        const diffTime = checkoutDate - checkinDate;
+        return Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+    }
+
+    function setCheckoutFromNights(nights) {
+        const nightsInt = Math.max(1, parseInt(nights, 10) || 1);
+        if (!checkinInput?.value) return;
+        const checkinDate = new Date(checkinInput.value + 'T00:00:00');
+        checkinDate.setDate(checkinDate.getDate() + nightsInt);
+        checkoutInput.value = formatDateInputValue(checkinDate);
+    }
+
+    function syncNightsAndRoomsUI(roomCount) {
+        if (nightsEl) nightsEl.textContent = nightsValue;
+        if (roomsCountEl) roomsCountEl.textContent = roomCount;
+    }
+
+    if (guestCapacityApply) {
+        guestCapacityApply.addEventListener('click', function () {
+            roomsInput.value = suggestedRoomsForCapacity;
+            calculateTotal();
+        });
+    }
+
+    if (nightsMinusBtn) {
+        nightsMinusBtn.addEventListener('click', function () {
+            nightsValue = Math.max(1, nightsValue - 1);
+            setCheckoutFromNights(nightsValue);
+            calculateTotal();
+        });
+    }
+
+    if (nightsPlusBtn) {
+        nightsPlusBtn.addEventListener('click', function () {
+            nightsValue = nightsValue + 1;
+            setCheckoutFromNights(nightsValue);
+            calculateTotal();
+        });
+    }
+
+    if (roomsMinusBtn) {
+        roomsMinusBtn.addEventListener('click', function () {
+            const current = Math.max(1, parseInt(roomsInput.value, 10) || 1);
+            roomsInput.value = current - 1 >= 1 ? current - 1 : 1;
+            calculateTotal();
+        });
+    }
+
+    if (roomsPlusBtn) {
+        roomsPlusBtn.addEventListener('click', function () {
+            const current = Math.max(1, parseInt(roomsInput.value, 10) || 1);
+            roomsInput.value = current + 1;
+            calculateTotal();
+        });
+    }
 
     function computeExtras(adults, children) {
         let remaining = Math.max(1, guestsIncluded);
@@ -397,7 +527,29 @@ document.addEventListener('DOMContentLoaded', function() {
         const adults = Math.max(0, parseInt(adultsInput.value, 10) || 0);
         const children = Math.max(0, parseInt(childrenInput.value, 10) || 0);
         const extraBeds = Math.max(0, parseInt(extraBedsInput.value, 10) || 0);
-        const roomCount = Math.max(1, parseInt(roomsInput.value, 10) || 1);
+        let roomCount = Math.max(1, parseInt(roomsInput.value, 10) || 1);
+
+        const nightsFromDates = getNightsFromDates();
+        if (nightsFromDates) nightsValue = nightsFromDates;
+
+        syncNightsAndRoomsUI(roomCount);
+
+        const totalGuests = adults + children;
+        if (guestCapacityAlert && maxGuestsPerRoom > 0 && totalGuests > (maxGuestsPerRoom * roomCount)) {
+            suggestedRoomsForCapacity = Math.max(1, Math.ceil(totalGuests / maxGuestsPerRoom));
+
+            // Auto-increase "Number of Rooms" to the minimum required.
+            if (roomsInput && roomCount < suggestedRoomsForCapacity) {
+                roomsInput.value = suggestedRoomsForCapacity;
+                roomCount = suggestedRoomsForCapacity;
+            }
+
+            guestCapacityAlert.style.display = 'block';
+            guestCapacityApply && (guestCapacityApply.textContent = 'Set to ' + suggestedRoomsForCapacity + ' rooms');
+            guestCapacityAlertText.textContent = 'For ' + totalGuests + ' guests, this room holds up to ' + maxGuestsPerRoom + ' per room. Suggested: ' + suggestedRoomsForCapacity + ' rooms.';
+        } else if (guestCapacityAlert) {
+            guestCapacityAlert.style.display = 'none';
+        }
 
         const { extraAdults, extraChildren } = computeExtras(adults, children);
         const costExtraAdults = extraAdults * extraAdultRate;
@@ -409,6 +561,11 @@ document.addEventListener('DOMContentLoaded', function() {
         lineExtraAdults.textContent = fmt(costExtraAdults);
         lineExtraChildren.textContent = fmt(costExtraChildren);
         lineExtraBeds.textContent = fmt(costExtraBeds);
+
+        // Hide extra-charge rows when their computed cost is 0
+        if (rowExtraAdults) rowExtraAdults.style.display = costExtraAdults > 0 ? 'flex' : 'none';
+        if (rowExtraChildren) rowExtraChildren.style.display = costExtraChildren > 0 ? 'flex' : 'none';
+        if (rowExtraBeds) rowExtraBeds.style.display = costExtraBeds > 0 ? 'flex' : 'none';
         labelExtraAdults.textContent = extraAdults > 0
             ? 'Extra adults (×' + extraAdults + ')'
             : 'Extra adults';
@@ -420,20 +577,18 @@ document.addEventListener('DOMContentLoaded', function() {
             : 'Extra beds';
         roomPriceNightly.innerHTML = '<strong>' + fmt(nightly) + '</strong>';
 
-        if (checkin && checkout && checkout > checkin) {
-            const diffTime = Math.abs(checkout - checkin);
-            const nights = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            nightsEl.textContent = nights + ' night' + (nights !== 1 ? 's' : '') + ' × ' + roomCount + ' room' + (roomCount !== 1 ? 's' : '');
+        if (nightsFromDates && checkin && checkout && checkout > checkin) {
+            const nights = nightsFromDates;
 
             const subtotal = nightly * nights * roomCount;
-            const tax = subtotal * 0.10;
-            const total = subtotal + tax;
+            // VAT is already included in the price; show the VAT portion only.
+            const vatPortion = subtotal * (0.10 / 1.10);
+            const total = subtotal;
 
             subtotalEl.textContent = fmt(subtotal);
-            taxEl.textContent = fmt(tax);
+            taxEl.textContent = fmt(vatPortion);
             totalEl.textContent = fmt(total);
         } else {
-            nightsEl.textContent = '—';
             subtotalEl.textContent = fmt(0);
             taxEl.textContent = fmt(0);
             totalEl.textContent = fmt(0);
@@ -443,6 +598,17 @@ document.addEventListener('DOMContentLoaded', function() {
     checkinInput.addEventListener('change', function() {
         if (checkoutInput.value) {
             checkoutInput.min = this.value;
+        }
+        if (checkinInput.value) {
+            // Keep checkout date in sync with the selected number of nights.
+            const nightsReady = nightsValue && nightsValue >= 1;
+            if (nightsReady) {
+                // If checkout is missing/invalid, reset it.
+                const nightsFromDates = getNightsFromDates();
+                if (!nightsFromDates || (checkoutInput.value && new Date(checkoutInput.value) <= new Date(checkinInput.value))) {
+                    setCheckoutFromNights(nightsValue);
+                }
+            }
         }
         calculateTotal();
     });
@@ -455,6 +621,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
         }
+        const nightsFromDates = getNightsFromDates();
+        if (nightsFromDates) nightsValue = nightsFromDates;
         calculateTotal();
     });
 
@@ -612,6 +780,18 @@ document.addEventListener('DOMContentLoaded', function() {
     .thumbnail-item {
         width: 70px;
         height: 70px;
+    }
+}
+
+@media (min-width: 992px) {
+    /* Exact 60/40 split for the room gallery vs details section */
+    .room-gallery-col {
+        flex: 0 0 60%;
+        max-width: 60%;
+    }
+    .room-details-col {
+        flex: 0 0 40%;
+        max-width: 40%;
     }
 }
 </style>

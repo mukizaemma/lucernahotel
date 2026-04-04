@@ -24,37 +24,7 @@
 
         <div class="row g-4 g-xl-4 align-items-stretch">
             <div class="col-lg-6 wow fadeInLeft d-flex">
-                <div class="home-cta__panel home-cta__panel--map w-100">
-                    <div class="home-cta__map-head">
-                        <span class="home-cta__map-icon" aria-hidden="true"><i class="fa-solid fa-location-dot"></i></span>
-                        <div class="home-cta__map-head-text">
-                            <span class="home-cta__map-label">Visit us</span>
-                            <span class="home-cta__map-title">{{ $setting?->company ?? config('app.name') }}</span>
-                            @if(filled($setting?->address))
-                                <span class="home-cta__map-address">{{ $setting->address }}</span>
-                            @endif
-                        </div>
-                    </div>
-                    <div class="home-cta__map-frame">
-                        @if(!empty($setting?->google_map_embed))
-                            {!! $setting?->google_map_embed !!}
-                        @else
-                            @php
-                                $hotelContact = \App\Models\HotelContact::first();
-                                $latitude = $hotelContact?->latitude ?? '-1.9441';
-                                $longitude = $hotelContact?->longitude ?? '30.0619';
-                            @endphp
-                            <iframe
-                                title="Hotel location on Google Maps"
-                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3987.497311415315!2d{{ $longitude }}!3d{{ $latitude }}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2z{{ $latitude }},{{ $longitude }}!5e0!3m2!1sen!2srw!4v1234567890"
-                                width="100%"
-                                height="100%"
-                                loading="lazy"
-                                referrerpolicy="no-referrer-when-downgrade"
-                                allowfullscreen=""></iframe>
-                        @endif
-                    </div>
-                </div>
+                @include('frontend.includes.cta-map-panel', ['setting' => $setting])
             </div>
 
             <div class="col-lg-6 wow fadeInRight d-flex">
@@ -96,7 +66,12 @@
                                         <select name="room_id" id="room_id{{ $idSuffix }}" class="form-control home-cta__input home-cta__input--select" required>
                                             <option value="">Choose a room…</option>
                                             @foreach($roomList as $roomOption)
-                                                <option value="{{ $roomOption->id }}">{{ $roomOption->title }} — ${{ number_format($roomOption->price, 0) }}/night</option>
+                                                <option
+                                                    value="{{ $roomOption->id }}"
+                                                    data-max-occupancy="{{ (int) ($roomOption->max_occupancy ?? 0) }}"
+                                                >
+                                                    {{ $roomOption->title }} — ${{ number_format($roomOption->price, 0) }}/night
+                                                </option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -113,8 +88,57 @@
                                         <div class="home-cta__field">
                                             <input type="number" name="children" id="children{{ $idSuffix }}" class="form-control home-cta__input" min="0" value="0" inputmode="numeric">
                                         </div>
+                                        <small class="text-muted d-block mt-1">Children 6-12. 13+ counts as adult.</small>
                                     </div>
                                 @endif
+                            </div>
+                        </div>
+
+                        <div class="home-cta__block">
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-6">
+                                    <label for="rooms{{ $idSuffix }}" class="home-cta__label">Number of Rooms</label>
+                                    <div class="home-cta__field">
+                                        <input
+                                            type="number"
+                                            name="rooms"
+                                            id="rooms{{ $idSuffix }}"
+                                            class="form-control home-cta__input"
+                                            min="1"
+                                            value="1"
+                                            inputmode="numeric"
+                                        >
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="extra_beds{{ $idSuffix }}" class="home-cta__label">Extra beds (optional)</label>
+                                    <div class="home-cta__field">
+                                        <input
+                                            type="number"
+                                            name="extra_beds"
+                                            id="extra_beds{{ $idSuffix }}"
+                                            class="form-control home-cta__input"
+                                            min="0"
+                                            value="0"
+                                            inputmode="numeric"
+                                        >
+                                    </div>
+                                    <small class="text-muted d-block mt-1">Extra beds (if applicable).</small>
+                                </div>
+                            </div>
+
+                            <div
+                                id="guest-capacity-alert{{ $idSuffix }}"
+                                class="alert alert-warning py-2 px-3"
+                                style="display: none; margin-top: 12px;"
+                            >
+                                <div class="small">
+                                    <strong>More rooms needed.</strong>
+                                    <span id="guest-capacity-alert-text{{ $idSuffix }}"></span>
+                                </div>
+                                <button type="button" id="guest-capacity-apply{{ $idSuffix }}" class="btn btn-sm btn-primary mt-2">
+                                    Set to suggested rooms
+                                </button>
                             </div>
                         </div>
 
@@ -175,3 +199,71 @@
         </div>
     </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const idSuffix = @json($idSuffix);
+    const roomSelect = document.getElementById('room_id' + idSuffix);
+    const adultsInput = document.getElementById('adults' + idSuffix);
+    const childrenInput = document.getElementById('children' + idSuffix);
+    const roomsInput = document.getElementById('rooms' + idSuffix);
+
+    const guestCapacityAlert = document.getElementById('guest-capacity-alert' + idSuffix);
+    const guestCapacityAlertText = document.getElementById('guest-capacity-alert-text' + idSuffix);
+    const guestCapacityApply = document.getElementById('guest-capacity-apply' + idSuffix);
+
+    if (!roomSelect || !adultsInput || !roomsInput || !guestCapacityAlert || !guestCapacityAlertText) return;
+
+    let suggestedRoomsForCapacity = 1;
+
+    function getMaxGuestsPerRoom() {
+        if (!roomSelect || roomSelect.selectedIndex < 0) return 0;
+        const opt = roomSelect.options[roomSelect.selectedIndex];
+        const max = parseInt(opt?.dataset?.maxOccupancy || '0', 10);
+        return Number.isFinite(max) ? max : 0;
+    }
+
+    function updateCapacity() {
+        const maxGuestsPerRoom = getMaxGuestsPerRoom();
+        const adults = Math.max(0, parseInt(adultsInput.value, 10) || 0);
+        const children = childrenInput ? Math.max(0, parseInt(childrenInput.value, 10) || 0) : 0;
+        const roomsCount = Math.max(1, parseInt(roomsInput.value, 10) || 1);
+
+        const totalGuests = adults + children;
+
+        if (maxGuestsPerRoom > 0 && totalGuests > (maxGuestsPerRoom * roomsCount)) {
+            suggestedRoomsForCapacity = Math.max(1, Math.ceil(totalGuests / maxGuestsPerRoom));
+
+            // Auto-increase rooms to fit the selected guest count.
+            if (roomsCount < suggestedRoomsForCapacity) {
+                roomsInput.value = suggestedRoomsForCapacity;
+            }
+
+            guestCapacityAlert.style.display = 'block';
+            guestCapacityAlertText.textContent =
+                ' For ' + totalGuests +
+                ' guests, this room holds up to ' + maxGuestsPerRoom +
+                ' per room. Suggested: ' + suggestedRoomsForCapacity + ' rooms.';
+        } else {
+            guestCapacityAlert.style.display = 'none';
+            guestCapacityAlertText.textContent = '';
+        }
+    }
+
+    if (guestCapacityApply) {
+        guestCapacityApply.addEventListener('click', function() {
+            roomsInput.value = suggestedRoomsForCapacity;
+            updateCapacity();
+        });
+    }
+
+    roomSelect.addEventListener('change', updateCapacity);
+    [adultsInput, childrenInput, roomsInput].forEach(function(el) {
+        if (!el) return;
+        el.addEventListener('input', updateCapacity);
+        el.addEventListener('change', updateCapacity);
+    });
+
+    updateCapacity();
+});
+</script>

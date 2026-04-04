@@ -17,7 +17,12 @@ class ContactEnquiryAdminMail extends Mailable
 
     public function build(): self
     {
-        return $this->subject('New website enquiry — '.$this->enquiry->names)
+        $prefix = 'New website enquiry';
+        if (($this->enquiry->enquiry_type ?? '') === 'proposal') {
+            $prefix = 'New proposal request';
+        }
+
+        return $this->subject($prefix.' — '.$this->enquiry->names)
             ->from(config('mail.from.address'), config('mail.from.name'))
             ->view('emails.contact-enquiry-admin');
     }

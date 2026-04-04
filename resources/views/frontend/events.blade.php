@@ -48,6 +48,7 @@
             <div class="col-lg-4">
                 @include('frontend.includes.event-inquiry-sidebar', [
                     'formPrefix' => 'meetings',
+                    'proposalSource' => 'meetings',
                     'cardTitle' => 'Request a proposal',
                     'cardLead' => 'Share your date, guest count, and event type — our team will follow up with options.',
                     'iconClass' => 'fa-solid fa-building-columns',

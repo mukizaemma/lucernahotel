@@ -205,6 +205,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/updateRestoImage/{id}', [App\Http\Controllers\PagesController::class, 'updateRestoImage'])->name('updateRestoImage');
     Route::post('/reorderRestoImage/{id}', [App\Http\Controllers\PagesController::class, 'reorderRestoImage'])->name('reorderRestoImage');
     Route::get('/deleteRestoImage/{id}', [App\Http\Controllers\PagesController::class, 'deleteRestoImage'])->name('deleteRestoImage');
+    Route::post('/addRestoCuisine', [App\Http\Controllers\PagesController::class, 'addRestoCuisine'])->name('addRestoCuisine');
+    Route::post('/updateRestoCuisine/{id}', [App\Http\Controllers\PagesController::class, 'updateRestoCuisine'])->name('updateRestoCuisine');
+    Route::post('/reorderRestoCuisine/{id}', [App\Http\Controllers\PagesController::class, 'reorderRestoCuisine'])->name('reorderRestoCuisine');
+    Route::get('/deleteRestoCuisine/{id}', [App\Http\Controllers\PagesController::class, 'deleteRestoCuisine'])->name('deleteRestoCuisine');
 
         
     // Categories
@@ -370,6 +374,7 @@ Route::get('/logouts', [App\Http\Controllers\HomeController::class, 'logouts'])-
 Route::post('/subscribe', [App\Http\Controllers\HomeController::class, 'subscribe'])->name('subscribe');
 
 Route::post('/sendMessage', [App\Http\Controllers\HomeController::class, 'sendMessage'])->name('sendMessage');
+Route::post('/submit-proposal', [App\Http\Controllers\HomeController::class, 'submitProposal'])->name('submitProposal');
 Route::post('/sendComment', [App\Http\Controllers\HomeController::class, 'sendComment'])->name('sendComment');
 Route::post('/registerNow', [App\Http\Controllers\HomeController::class, 'registerNow'])->name('registerNow');
 Route::post('/testimony', [App\Http\Controllers\HomeController::class, 'testimony'])->name('testimony');

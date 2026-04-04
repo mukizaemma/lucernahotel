@@ -15,16 +15,11 @@
                 </button>
             </div>
 
-            <!-- Tabs for rooms vs apartments -->
+            <!-- Rooms tab -->
             <ul class="nav nav-tabs mb-3" id="roomsTabs" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active" id="rooms-tab" data-bs-toggle="tab" data-bs-target="#rooms-list" type="button" role="tab" aria-controls="rooms-list" aria-selected="true">
                         Rooms
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="apartments-tab" data-bs-toggle="tab" data-bs-target="#apartments-list" type="button" role="tab" aria-controls="apartments-list" aria-selected="false">
-                        Apartments
                     </button>
                 </li>
             </ul>
@@ -38,7 +33,7 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Title</th>
-                                    <th>Type</th>
+                                    <th>Rooms</th>
                                     <th>Status</th>
                                     <th>Room Status</th>
                                     <th>Price</th>
@@ -51,7 +46,7 @@
                                 <tr>
                                     <td>{{ $room->id }}</td>
                                     <td>{{ $room->title }}</td>
-                                    <td>{{ ucfirst($room->room_type ?? 'room') }}</td>
+                                    <td>{{ $room->number_of_rooms ?? 1 }}</td>
                                     <td><span class="badge bg-{{ $room->status == 'Active' ? 'success' : 'danger' }}">{{ $room->status }}</span></td>
                                     <td>
                                         <span class="badge bg-{{ $room->room_status == 'available' ? 'success' : ($room->room_status == 'occupied' ? 'danger' : ($room->room_status == 'reserved' ? 'warning' : 'secondary')) }}">
@@ -78,53 +73,6 @@
                     </div>
                 </div>
 
-                <!-- Apartments table -->
-                <div class="tab-pane fade" id="apartments-list" role="tabpanel" aria-labelledby="apartments-tab">
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Title</th>
-                                    <th>Type</th>
-                                    <th>Status</th>
-                                    <th>Room Status</th>
-                                    <th>Price</th>
-                                    <th>Amenities</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($rooms->where('room_type', 'apartment') as $room)
-                                <tr>
-                                    <td>{{ $room->id }}</td>
-                                    <td>{{ $room->title }}</td>
-                                    <td>{{ ucfirst($room->room_type ?? 'apartment') }}</td>
-                                    <td><span class="badge bg-{{ $room->status == 'Active' ? 'success' : 'danger' }}">{{ $room->status }}</span></td>
-                                    <td>
-                                        <span class="badge bg-{{ $room->room_status == 'available' ? 'success' : ($room->room_status == 'occupied' ? 'danger' : ($room->room_status == 'reserved' ? 'warning' : 'secondary')) }}">
-                                            {{ ucfirst($room->room_status) }}
-                                        </span>
-                                    </td>
-                                    <td>{{ number_format($room->price ?? 0) }} RWF</td>
-                                    <td>{{ $room->amenities->count() }} amenities</td>
-                                    <td>
-                                        <button class="btn btn-sm btn-info" onclick="viewRoom({{ $room->id }})">
-                                            <i class="fa fa-eye"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-warning" onclick="editRoom({{ $room->id }})">
-                                            <i class="fa fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-danger" onclick="deleteRoom({{ $room->id }})">
-                                            <i class="fa fa-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -149,12 +97,9 @@
                             <div class="invalid-feedback">Please provide a title.</div>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Room Type <span class="text-danger">*</span></label>
-                            <select class="form-control" id="room_type" name="room_type" required>
-                                <option value="room">Room</option>
-                                <option value="apartment">Apartment</option>
-                            </select>
-                            <small class="text-muted">Use "Room" for standard rooms and "Apartment" for apartment units.</small>
+                            <label class="form-label">Number of rooms <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="room_number_of_rooms" name="number_of_rooms" min="1" step="1" value="1" required>
+                            <small class="text-muted">How many identical rooms are available for this record.</small>
                         </div>
                     </div>
                     <div class="mb-3">
@@ -263,6 +208,7 @@ function resetForm() {
     form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
     document.querySelectorAll('input[name="amenities[]"]').forEach(cb => cb.checked = false);
     document.getElementById('room_guests_included').value = '2';
+    document.getElementById('room_number_of_rooms').value = '1';
     document.getElementById('room_extra_adult').value = '';
     document.getElementById('room_extra_child').value = '';
     document.getElementById('room_extra_bed').value = '';
@@ -283,7 +229,7 @@ function editRoom(id) {
             document.getElementById('room_title').value = data.title;
             // Set Summernote content properly
             $('#room_description').summernote('code', data.description || '');
-            document.getElementById('room_type').value = data.room_type || 'room';
+            document.getElementById('room_number_of_rooms').value = data.number_of_rooms ?? 1;
             document.getElementById('room_price').value = data.price ?? '';
             document.getElementById('room_guests_included').value = data.guests_included_in_price ?? 2;
             document.getElementById('room_extra_adult').value = data.extra_adult_price ?? '';
@@ -412,6 +358,7 @@ function viewRoom(id) {
             document.getElementById('viewRoomTitle').textContent = data.title;
             document.getElementById('viewRoomDetails').innerHTML = `
                 <p><strong>Room Number:</strong> ${data.room_number || 'N/A'}</p>
+                <p><strong>Number of rooms:</strong> ${data.number_of_rooms ?? 1}</p>
                 <p><strong>Category:</strong> ${data.category || 'N/A'}</p>
                 <p><strong>Base price:</strong> ${data.price ? new Intl.NumberFormat().format(data.price) + ' RWF / night' : 'N/A'}</p>
                 <p><strong>Guests included in base price:</strong> ${data.guests_included_in_price ?? '—'}</p>

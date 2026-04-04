@@ -197,10 +197,13 @@ class AdminController extends Controller
     public function replyMessage(Request $request, $id)
     {
         $request->validate([
+            'reply_subject' => 'nullable|string|max:255',
             'admin_reply' => 'required|string|max:5000',
         ]);
 
         $message = Message::findOrFail($id);
+        $replySubject = trim((string) $request->input('reply_subject', ''));
+        $message->reply_subject = $replySubject !== '' ? $replySubject : null;
         $message->admin_reply = $request->input('admin_reply');
         $message->replied_at = now();
         $message->save();
@@ -208,12 +211,16 @@ class AdminController extends Controller
         if (filled($message->email)) {
             try {
                 Mail::to($message->email)->send(new ContactMessageReplyMail($message));
+
+                return back()->with('success', 'Reply sent to the guest by email.');
             } catch (\Throwable $e) {
                 Log::error('Contact message reply email failed', ['exception' => $e]);
+
+                return back()->with('error', 'Reply saved but email could not be sent: '.$e->getMessage());
             }
         }
 
-        return back()->with('success', 'Reply saved.');
+        return back()->with('success', 'Reply saved. No guest email on file — nothing was sent.');
     }
 
     public function deleteMessages($id)

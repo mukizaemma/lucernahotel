@@ -6,14 +6,14 @@
     <title>New enquiry</title>
 </head>
 <body style="font-family: Georgia, serif; line-height: 1.6; color: #333; max-width: 560px; margin: 0 auto; padding: 24px;">
-    <h1 style="font-size: 20px; margin-bottom: 16px;">New website enquiry</h1>
+    <h1 style="font-size: 20px; margin-bottom: 16px;">@if(($enquiry->enquiry_type ?? '') === 'proposal')New proposal request@else New website enquiry@endif</h1>
     <p style="margin: 0 0 16px;">You have a new message from <strong>{{ $enquiry->names }}</strong>.</p>
 
     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-        <tr><td style="padding: 6px 0; border-bottom: 1px solid #eee;"><strong>Type</strong></td><td style="padding: 6px 0; border-bottom: 1px solid #eee;">{{ ($enquiry->enquiry_type ?? 'general') === 'room' ? 'Room enquiry' : 'General information' }}</td></tr>
+        <tr><td style="padding: 6px 0; border-bottom: 1px solid #eee;"><strong>Type</strong></td><td style="padding: 6px 0; border-bottom: 1px solid #eee;">@if(($enquiry->enquiry_type ?? 'general') === 'room')Room enquiry@elseif(($enquiry->enquiry_type ?? '') === 'proposal')Proposal (meetings / dining)@else General information @endif</td></tr>
         <tr><td style="padding: 6px 0; border-bottom: 1px solid #eee;"><strong>Phone</strong></td><td style="padding: 6px 0; border-bottom: 1px solid #eee;">{{ $enquiry->phone ?? '—' }}</td></tr>
         <tr><td style="padding: 6px 0; border-bottom: 1px solid #eee;"><strong>Email</strong></td><td style="padding: 6px 0; border-bottom: 1px solid #eee;">{{ $enquiry->email ?? '—' }}</td></tr>
-        @if(($enquiry->enquiry_type ?? 'general') === 'general')
+        @if(in_array($enquiry->enquiry_type ?? 'general', ['general', 'proposal'], true))
         <tr><td style="padding: 6px 0; border-bottom: 1px solid #eee;"><strong>Subject</strong></td><td style="padding: 6px 0; border-bottom: 1px solid #eee;">{{ $enquiry->subject }}</td></tr>
         @endif
         @if(($enquiry->enquiry_type ?? 'general') === 'room' && $enquiry->room)

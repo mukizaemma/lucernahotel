@@ -42,6 +42,8 @@
                             <td>
                                 @if(($rs->enquiry_type ?? 'general') === 'room')
                                     <span class="badge badge-info">Room</span>
+                                @elseif(($rs->enquiry_type ?? '') === 'proposal')
+                                    <span class="badge badge-primary">Proposal</span>
                                 @else
                                     <span class="badge badge-secondary">General</span>
                                 @endif
@@ -109,6 +111,8 @@
                         <strong>Original message</strong><br>
                         {{ $rs->message ?? '—' }}
                     </div>
+                    <label for="reply_subject{{ $rs->id }}">Email subject / heading <span class="text-muted font-weight-normal">(optional)</span></label>
+                    <input type="text" name="reply_subject" id="reply_subject{{ $rs->id }}" class="form-control mb-3" maxlength="255" value="{{ old('reply_subject', $rs->reply_subject) }}" placeholder="Shown as email subject and main heading; leave blank for default">
                     <label for="admin_reply{{ $rs->id }}">Your reply</label>
                     <textarea name="admin_reply" id="admin_reply{{ $rs->id }}" class="form-control" rows="6" required maxlength="5000">{{ old('admin_reply', $rs->admin_reply) }}</textarea>
                 </div>

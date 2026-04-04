@@ -100,7 +100,13 @@
                                             <select name="room_id" id="contact-room-id" data-require-room class="form-control home-cta__input home-cta__input--select">
                                                 <option value="">Choose a room…</option>
                                                 @foreach($roomList as $roomOption)
-                                                    <option value="{{ $roomOption->id }}" {{ (string) old('room_id') === (string) $roomOption->id ? 'selected' : '' }}>{{ $roomOption->title }}</option>
+                                                    <option
+                                                        value="{{ $roomOption->id }}"
+                                                        data-max-occupancy="{{ (int) ($roomOption->max_occupancy ?? 0) }}"
+                                                        {{ (string) old('room_id') === (string) $roomOption->id ? 'selected' : '' }}
+                                                    >
+                                                        {{ $roomOption->title }}
+                                                    </option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -128,13 +134,50 @@
                                         <div class="home-cta__field">
                                             <input type="number" name="children" id="contact-children" class="form-control home-cta__input" min="0" value="{{ old('children', 0) }}" inputmode="numeric">
                                         </div>
+                                        <small class="text-muted d-block mt-1">Children 6-12. 13+ counts as adult.</small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div id="guest-capacity-alert-contact" class="alert alert-warning py-2 px-3" style="display: none;">
+                                            <div class="small">
+                                                <strong>More rooms needed.</strong>
+                                                <span id="guest-capacity-alert-text-contact"></span>
+                                            </div>
+                                            <button type="button" id="guest-capacity-apply-contact" class="btn btn-sm btn-primary mt-2">
+                                                Set to suggested rooms
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="home-cta__block">
-                                <label for="contact-message-room" class="home-cta__label">Notes <span class="home-cta__label-opt">(optional)</span></label>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="contact-rooms" class="home-cta__label">Number of Rooms</label>
+                                        <div class="home-cta__field">
+                                            <input type="number" name="rooms" id="contact-rooms" class="form-control home-cta__input" min="1" value="1" inputmode="numeric">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="contact-extra-beds" class="home-cta__label">Extra beds (optional)</label>
+                                        <div class="home-cta__field">
+                                            <input
+                                                type="number"
+                                                name="extra_beds"
+                                                id="contact-extra-beds"
+                                                class="form-control home-cta__input"
+                                                min="0"
+                                                value="0"
+                                                inputmode="numeric"
+                                            >
+                                        </div>
+                                        <small class="text-muted d-block mt-1">Extra beds (if applicable).</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="home-cta__block">
+                                <label for="contact-message-room" class="home-cta__label">Special Requests <span class="home-cta__label-opt">(optional)</span></label>
                                 <div class="home-cta__field">
-                                    <textarea id="contact-message-room" class="form-control home-cta__input home-cta__input--textarea" rows="4" placeholder="Special requests, approximate budget, etc.">{{ old('message') }}</textarea>
+                                    <textarea id="contact-message-room" class="form-control home-cta__input home-cta__input--textarea" rows="4" placeholder="Any special requests or notes...">{{ old('message') }}</textarea>
                                 </div>
                             </div>
                         </div>
@@ -196,6 +239,15 @@
     var checkout = document.getElementById('contact-checkout');
     var roomMessage = document.getElementById('contact-message-room');
     var generalMessage = document.getElementById('contact-message-general');
+
+    // Room capacity (multi-room suggestion)
+    var roomSelect = document.getElementById('contact-room-id');
+    var adultsInput = document.getElementById('contact-adults');
+    var childrenInput = document.getElementById('contact-children');
+    var roomsInput = document.getElementById('contact-rooms');
+    var guestCapacityAlert = document.getElementById('guest-capacity-alert-contact');
+    var guestCapacityAlertText = document.getElementById('guest-capacity-alert-text-contact');
+    var guestCapacityApply = document.getElementById('guest-capacity-apply-contact');
 
     function getType() {
         var r = form.querySelector('input[name="enquiry_type"]:checked');
@@ -268,6 +320,60 @@
             }
         });
     }
+
+    function getMaxGuestsPerRoom() {
+        if (!roomSelect || roomSelect.selectedIndex < 0) return 0;
+        var opt = roomSelect.options[roomSelect.selectedIndex];
+        var max = parseInt(opt && opt.dataset ? (opt.dataset.maxOccupancy || '0') : '0', 10);
+        return Number.isFinite(max) ? max : 0;
+    }
+
+    function updateGuestCapacityAlert() {
+        if (!guestCapacityAlert || !guestCapacityAlertText || !roomsInput || !adultsInput) return;
+
+        var maxGuestsPerRoom = getMaxGuestsPerRoom();
+        var adults = Math.max(0, parseInt(adultsInput.value, 10) || 0);
+        var children = childrenInput ? Math.max(0, parseInt(childrenInput.value, 10) || 0) : 0;
+        var roomCount = Math.max(1, parseInt(roomsInput.value, 10) || 1);
+
+        var totalGuests = adults + children;
+
+        if (maxGuestsPerRoom > 0 && totalGuests > (maxGuestsPerRoom * roomCount)) {
+            var suggestedRoomsForCapacity = Math.max(1, Math.ceil(totalGuests / maxGuestsPerRoom));
+
+            if (roomCount < suggestedRoomsForCapacity) {
+                roomsInput.value = suggestedRoomsForCapacity;
+            }
+
+            guestCapacityAlert.style.display = 'block';
+            guestCapacityAlertText.textContent =
+                ' For ' + totalGuests +
+                ' guests, this room holds up to ' + maxGuestsPerRoom +
+                ' per room. Suggested: ' + suggestedRoomsForCapacity + ' rooms.';
+        } else {
+            guestCapacityAlert.style.display = 'none';
+            guestCapacityAlertText.textContent = '';
+        }
+    }
+
+    if (roomSelect) roomSelect.addEventListener('change', updateGuestCapacityAlert);
+    if (adultsInput) ['input', 'change'].forEach(function (evt) {
+        adultsInput.addEventListener(evt, updateGuestCapacityAlert);
+    });
+    if (childrenInput) ['input', 'change'].forEach(function (evt) {
+        childrenInput.addEventListener(evt, updateGuestCapacityAlert);
+    });
+    if (roomsInput) ['input', 'change'].forEach(function (evt) {
+        roomsInput.addEventListener(evt, updateGuestCapacityAlert);
+    });
+
+    if (guestCapacityApply) {
+        guestCapacityApply.addEventListener('click', function () {
+            updateGuestCapacityAlert();
+        });
+    }
+
+    updateGuestCapacityAlert();
 
     form.addEventListener('submit', function (e) {
         if (emailInput && emailInput.value.trim() !== '') {

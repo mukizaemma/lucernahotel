@@ -17,7 +17,11 @@ class ContactMessageReplyMail extends Mailable
 
     public function build(): self
     {
-        return $this->subject('Reply from '.config('app.name'))
+        $subject = filled($this->enquiry->reply_subject)
+            ? $this->enquiry->reply_subject
+            : ('Reply from '.config('app.name'));
+
+        return $this->subject($subject)
             ->from(config('mail.from.address'), config('mail.from.name'))
             ->view('emails.contact-message-reply');
     }

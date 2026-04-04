@@ -25,6 +25,7 @@ class Message extends Model
         'adults',
         'children',
         'admin_reply',
+        'reply_subject',
         'replied_at',
     ];
 

@@ -267,6 +267,6 @@
 @endif
 <!-- Updates End -->
 
-<x-booking-cta :rooms="$rooms" heading-id="home-cta-heading" />
+<x-booking-cta :rooms="$rooms" heading-id="home-cta-heading" :show-children-field="true" />
 <!-- Call to Action End -->
 </div>

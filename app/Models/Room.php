@@ -22,6 +22,7 @@ class Room extends Model
         'user_id',
         'category',
         'room_type',
+        'number_of_rooms',
         'price',
         'couplePrice',
         'guests_included_in_price',
