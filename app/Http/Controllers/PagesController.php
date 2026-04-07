@@ -158,7 +158,6 @@ class PagesController extends Controller
             'title' => 'required|string|max:255',
             'max_persons' => 'required|integer|min:1|max:10000',
             'description' => 'nullable|string',
-            'summary' => 'nullable|string|max:2000',
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
 
@@ -170,7 +169,6 @@ class PagesController extends Controller
         $room->title = $newTitle;
         $room->max_persons = (int) $request->input('max_persons');
         $room->description = $request->input('description');
-        $room->summary = $request->input('summary');
 
         if ($request->hasFile('cover_image')) {
             if ($room->image) {

@@ -137,20 +137,6 @@
                                                     <label class="form-label">Maximum guests</label>
                                                     <input type="number" name="max_persons" class="form-control" min="1" max="10000" value="{{ old('max_persons', $room->max_persons) }}" required>
                                                 </div>
-                                                @if(filled($room->slug ?? null))
-                                                <div class="col-12">
-                                                    <label class="form-label text-muted small mb-1">Public URL</label>
-                                                    <div class="input-group input-group-sm">
-                                                        <input type="text" class="form-control font-monospace" readonly value="{{ url('/meetings-events/'.$room->slug) }}">
-                                                        <a class="btn btn-outline-secondary" href="{{ route('meetings-events.room', $room->slug) }}" target="_blank" rel="noopener">Open</a>
-                                                    </div>
-                                                    <small class="text-muted">Slug updates automatically when you change the room name.</small>
-                                                </div>
-                                                @endif
-                                                <div class="col-12">
-                                                    <label class="form-label">Short description (grid &amp; cards)</label>
-                                                    <textarea name="summary" class="form-control" rows="4" maxlength="2000" placeholder="Plain text for the meetings page grid. If empty, the main description is shortened automatically.">{{ old('summary', $room->summary) }}</textarea>
-                                                </div>
                                                 <div class="col-12">
                                                     <label class="form-label">Cover image</label>
                                                     @if($room->image)
@@ -159,11 +145,12 @@
                                                         </div>
                                                     @endif
                                                     <input type="file" name="cover_image" class="form-control" accept="image/*">
-                                                    <small class="text-muted">Optional — shown on the public page as the main photo for this room.</small>
+                                                    <small class="text-muted">Optional — main photo for this room on the public site.</small>
                                                 </div>
                                                 <div class="col-12">
                                                     <label class="form-label">Description</label>
-                                                    <textarea id="meetingRoomDesc{{ $room->id }}" name="description" class="form-control" rows="4">{!! old('description', $room->description) !!}</textarea>
+                                                    <textarea id="meetingRoomDesc{{ $room->id }}" name="description" class="form-control" rows="6">{!! old('description', $room->description) !!}</textarea>
+                                                    <small class="text-muted">Shown in full on the room page. Listing cards use a short excerpt (first {{ \App\Models\MeetingRoom::GRID_EXCERPT_MAX_CHARS }} characters) automatically.</small>
                                                 </div>
                                                 <div class="col-12">
                                                     <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-save"></i> Save room</button>

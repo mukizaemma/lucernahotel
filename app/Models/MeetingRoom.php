@@ -43,18 +43,21 @@ class MeetingRoom extends Model
         return $slug;
     }
 
+    /** Max characters for grid / card teaser (full description is edited in admin). */
+    public const GRID_EXCERPT_MAX_CHARS = 220;
+
     /**
-     * Short teaser for listing cards (plain text preferred).
+     * Short teaser for listing cards — plain text from description, length-limited.
      */
     public function excerpt(): string
     {
-        $s = trim((string) ($this->summary ?? ''));
-        if ($s !== '') {
-            return $s;
-        }
         $html = (string) ($this->description ?? '');
+        $plain = trim(preg_replace('/\s+/', ' ', strip_tags($html)));
+        if ($plain === '') {
+            return '';
+        }
 
-        return Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($html))), 180);
+        return Str::limit($plain, self::GRID_EXCERPT_MAX_CHARS, '…');
     }
 
     protected $fillable = [
@@ -63,7 +66,6 @@ class MeetingRoom extends Model
         'slug',
         'max_persons',
         'description',
-        'summary',
         'image',
         'sort_order',
     ];
