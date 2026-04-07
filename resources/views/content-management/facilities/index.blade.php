@@ -118,8 +118,12 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Gallery Images (Multiple)</label>
+                        <div id="facilityExistingGalleryWrap" class="mb-3" style="display: none;">
+                            <span class="small text-muted d-block mb-2">Current gallery — use × to remove an image</span>
+                            <div id="facilityExistingGalleryGrid" class="row g-2"></div>
+                        </div>
                         <input type="file" class="form-control" id="facility_images" name="images[]" multiple accept="image/*">
-                        <small class="text-muted">Optional - You can select multiple images</small>
+                        <small class="text-muted">Optional — new files are added to the gallery above</small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Status <span class="text-danger">*</span></label>
@@ -158,6 +162,44 @@ function resetForm() {
     form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
     // Reset Summernote
     $('#facility_description').summernote('code', '');
+    document.getElementById('facility_images').value = '';
+    hideFacilityEditGallery();
+}
+
+function renderFacilityEditGallery(images, facilityId) {
+    const wrap = document.getElementById('facilityExistingGalleryWrap');
+    const grid = document.getElementById('facilityExistingGalleryGrid');
+    if (!wrap || !grid) {
+        return;
+    }
+    wrap.style.display = 'block';
+    if (!images || images.length === 0) {
+        grid.innerHTML = '<p class="text-muted small mb-0">No gallery images yet. Upload below.</p>';
+        return;
+    }
+    let html = '';
+    images.forEach(image => {
+        html += `
+            <div class="col-6 col-md-4 col-lg-3 position-relative">
+                <img src="{{ asset('storage/') }}/${image.image}" class="img-fluid rounded border" style="height: 120px; width: 100%; object-fit: cover;" alt="">
+                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1" onclick="deleteFacilityImage(${image.id}, ${facilityId})" style="z-index: 10;" title="Remove image">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+        `;
+    });
+    grid.innerHTML = html;
+}
+
+function hideFacilityEditGallery() {
+    const wrap = document.getElementById('facilityExistingGalleryWrap');
+    const grid = document.getElementById('facilityExistingGalleryGrid');
+    if (wrap) {
+        wrap.style.display = 'none';
+    }
+    if (grid) {
+        grid.innerHTML = '';
+    }
 }
 
 function editFacility(id) {
@@ -171,6 +213,8 @@ function editFacility(id) {
             $('#facility_description').summernote('code', data.description || '');
             document.getElementById('facility_status').value = data.status;
             document.getElementById('facilityModalTitle').textContent = 'Edit Facility';
+            document.getElementById('facility_images').value = '';
+            renderFacilityEditGallery(data.images || [], id);
             new bootstrap.Modal(document.getElementById('facilityModal')).show();
         });
 }
@@ -318,21 +362,32 @@ function viewFacility(id) {
 }
 
 function deleteFacilityImage(imageId, facilityId) {
-    if (confirm('Are you sure you want to delete this image?')) {
-        fetch(`{{ route('content-management.facilities.delete-image', ':id') }}`.replace(':id', imageId), {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                viewFacility(facilityId); // Refresh view
-            }
-        });
+    if (!confirm('Are you sure you want to delete this image?')) {
+        return;
     }
+    fetch(`{{ route('content-management.facilities.delete-image', ':id') }}`.replace(':id', imageId), {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.success) {
+            return;
+        }
+        const viewModalEl = document.getElementById('viewFacilityModal');
+        if (viewModalEl && viewModalEl.classList.contains('show')) {
+            viewFacility(facilityId);
+        }
+        const editModalEl = document.getElementById('facilityModal');
+        if (editModalEl && editModalEl.classList.contains('show') && currentFacilityId === facilityId) {
+            fetch(`{{ route('content-management.facilities.show', ':id') }}`.replace(':id', facilityId))
+                .then(response => response.json())
+                .then(d => renderFacilityEditGallery(d.images || [], facilityId));
+        }
+    });
 }
 
 function addFacilityImages() {

@@ -40,11 +40,6 @@
                     <li class="breadcrumb-item active">Updating <strong> {{$data->title}}</strong></li>
 
                     </li>
-                    <li class="nav-item ms-auto">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newImage">
-                            Add New Image
-                        </button>
-                    </li>
                 </ul>
 
                 <div class="container-fluid px-4">
@@ -110,65 +105,152 @@
                         </div>
                     </div>
 
-                        <!-- Image Gallery Section (CRUD: caption, reorder, replace, delete) -->
+                        {{-- Main page gallery removed: photos are managed per meeting room below. --}}
+
+                        @php
+                            $meetingRooms = $meetingRooms ?? collect();
+                        @endphp
+
                         <div class="card mt-5">
-                            <div class="card-header bg-dark text-white d-flex align-items-center">
-                                <h5 class="mb-0">
-                                    <span style="color: yellow">{{ $totalImages }}</span> Gallery images
-                                </h5>
-                                <button type="button" class="btn btn-primary ms-auto" data-bs-toggle="modal" data-bs-target="#newImage">
-                                    Add images
+                            <div class="card-header bg-dark text-white d-flex align-items-center flex-wrap gap-2">
+                                <h5 class="mb-0">Meeting rooms</h5>
+                                <span class="text-white-50 small">Cover image, short description, and optional gallery per room</span>
+                                <button type="button" class="btn btn-sm btn-primary ms-auto" data-bs-toggle="modal" data-bs-target="#addMeetingRoomModal">
+                                    Add room
                                 </button>
                             </div>
-
                             <div class="card-body">
-                                @if($images->count() == 0)
-                                    <p class="text-muted mb-0">No images yet. Upload photos for the meetings &amp; events gallery.</p>
-                                @else
-                                    <div class="table-responsive">
-                                        <table class="table table-bordered align-middle">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th style="width:100px;">Preview</th>
-                                                    <th>Caption (shown on site)</th>
-                                                    <th style="width:120px;">Order</th>
-                                                    <th style="width:200px;">Actions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach($images as $image)
-                                                <tr>
-                                                    <td>
-                                                        <img src="{{ asset('storage/images/events/' . $image->image) }}" alt="" class="rounded" style="width: 88px; height: 56px; object-fit: cover;">
-                                                    </td>
-                                                    <td>
-                                                        <form action="{{ route('updateEventImage', $image->id) }}" method="POST" class="d-flex flex-column gap-1">
-                                                            @csrf
-                                                            <input type="text" name="caption" value="{{ old('caption', $image->caption) }}" class="form-control form-control-sm" placeholder="Optional caption">
-                                                            <button type="submit" class="btn btn-sm btn-primary align-self-start">Save caption</button>
-                                                        </form>
-                                                    </td>
-                                                    <td>
-                                                        <form action="{{ route('reorderEventImage', $image->id) }}" method="POST" class="d-inline">@csrf
-                                                            <input type="hidden" name="direction" value="up">
-                                                            <button type="submit" class="btn btn-sm btn-outline-secondary" title="Move up">↑</button>
-                                                        </form>
-                                                        <form action="{{ route('reorderEventImage', $image->id) }}" method="POST" class="d-inline">@csrf
-                                                            <input type="hidden" name="direction" value="down">
-                                                            <button type="submit" class="btn btn-sm btn-outline-secondary" title="Move down">↓</button>
-                                                        </form>
-                                                    </td>
-                                                    <td>
-                                                        <button type="button" class="btn btn-sm btn-outline-primary mb-1" data-bs-toggle="modal" data-bs-target="#replaceEventImageModal" data-image-id="{{ $image->id }}">Replace file</button>
-                                                        <br>
-                                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmDelete('{{ route('deleteEventImage', $image->id) }}')">Delete</button>
-                                                    </td>
-                                                </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
+                                @forelse($meetingRooms as $room)
+                                    <div class="border rounded p-3 mb-4 bg-light">
+                                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+                                            <h6 class="mb-0">{{ $room->title }} <span class="badge bg-secondary">max {{ $room->max_persons }}</span></h6>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmDeleteRoom('{{ route('deleteMeetingRoom', $room->id) }}')">Remove room</button>
+                                        </div>
+                                        <form action="{{ route('saveMeetingRoom', $room->id) }}" method="POST" enctype="multipart/form-data" class="mb-3">
+                                            @csrf
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Room name</label>
+                                                    <input type="text" name="title" class="form-control" value="{{ old('title', $room->title) }}" required>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Maximum guests</label>
+                                                    <input type="number" name="max_persons" class="form-control" min="1" max="10000" value="{{ old('max_persons', $room->max_persons) }}" required>
+                                                </div>
+                                                @if(filled($room->slug ?? null))
+                                                <div class="col-12">
+                                                    <label class="form-label text-muted small mb-1">Public URL</label>
+                                                    <div class="input-group input-group-sm">
+                                                        <input type="text" class="form-control font-monospace" readonly value="{{ url('/meetings-events/'.$room->slug) }}">
+                                                        <a class="btn btn-outline-secondary" href="{{ route('meetings-events.room', $room->slug) }}" target="_blank" rel="noopener">Open</a>
+                                                    </div>
+                                                    <small class="text-muted">Slug updates automatically when you change the room name.</small>
+                                                </div>
+                                                @endif
+                                                <div class="col-12">
+                                                    <label class="form-label">Short description (grid &amp; cards)</label>
+                                                    <textarea name="summary" class="form-control" rows="4" maxlength="2000" placeholder="Plain text for the meetings page grid. If empty, the main description is shortened automatically.">{{ old('summary', $room->summary) }}</textarea>
+                                                </div>
+                                                <div class="col-12">
+                                                    <label class="form-label">Cover image</label>
+                                                    @if($room->image)
+                                                        <div class="mb-2">
+                                                            <img src="{{ asset('storage/images/meeting-rooms/covers/' . $room->image) }}" alt="" class="rounded" style="width: 120px; height: 80px; object-fit: cover;">
+                                                        </div>
+                                                    @endif
+                                                    <input type="file" name="cover_image" class="form-control" accept="image/*">
+                                                    <small class="text-muted">Optional — shown on the public page as the main photo for this room.</small>
+                                                </div>
+                                                <div class="col-12">
+                                                    <label class="form-label">Description</label>
+                                                    <textarea id="meetingRoomDesc{{ $room->id }}" name="description" class="form-control" rows="4">{!! old('description', $room->description) !!}</textarea>
+                                                </div>
+                                                <div class="col-12">
+                                                    <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-save"></i> Save room</button>
+                                                </div>
+                                            </div>
+                                        </form>
+
+                                        <div class="mt-3 pt-3 border-top">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <strong class="small">Gallery for this room</strong>
+                                                <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addMeetingRoomImageModal{{ $room->id }}">Add images</button>
+                                            </div>
+                                            @if($room->images->isEmpty())
+                                                <p class="text-muted small mb-0">No gallery images yet.</p>
+                                            @else
+                                                <div class="table-responsive">
+                                                    <table class="table table-sm table-bordered align-middle mb-0">
+                                                        <thead class="table-light">
+                                                            <tr>
+                                                                <th style="width:90px;">Preview</th>
+                                                                <th>Caption</th>
+                                                                <th style="width:100px;">Order</th>
+                                                                <th style="width:160px;">Actions</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach($room->images as $mimg)
+                                                                <tr>
+                                                                    <td>
+                                                                        <img src="{{ asset('storage/images/meeting-rooms/gallery/' . $mimg->image) }}" alt="" class="rounded" style="width: 72px; height: 48px; object-fit: cover;">
+                                                                    </td>
+                                                                    <td>
+                                                                        <form action="{{ route('updateMeetingRoomImage', $mimg->id) }}" method="POST" class="d-flex flex-column gap-1">
+                                                                            @csrf
+                                                                            <input type="text" name="caption" value="{{ old('caption', $mimg->caption) }}" class="form-control form-control-sm" placeholder="Optional caption">
+                                                                            <button type="submit" class="btn btn-sm btn-primary align-self-start">Save caption</button>
+                                                                        </form>
+                                                                    </td>
+                                                                    <td>
+                                                                        <form action="{{ route('reorderMeetingRoomImage', $mimg->id) }}" method="POST" class="d-inline">@csrf
+                                                                            <input type="hidden" name="direction" value="up">
+                                                                            <button type="submit" class="btn btn-sm btn-outline-secondary">↑</button>
+                                                                        </form>
+                                                                        <form action="{{ route('reorderMeetingRoomImage', $mimg->id) }}" method="POST" class="d-inline">@csrf
+                                                                            <input type="hidden" name="direction" value="down">
+                                                                            <button type="submit" class="btn btn-sm btn-outline-secondary">↓</button>
+                                                                        </form>
+                                                                    </td>
+                                                                    <td>
+                                                                        <button type="button" class="btn btn-sm btn-outline-primary mb-1" data-bs-toggle="modal" data-bs-target="#replaceMeetingRoomImageModal" data-mr-image-id="{{ $mimg->id }}">Replace</button>
+                                                                        <br>
+                                                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmDelete('{{ route('deleteMeetingRoomImage', $mimg->id) }}')">Delete</button>
+                                                                    </td>
+                                                                </tr>
+                                                            @endforeach
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            @endif
+                                        </div>
                                     </div>
-                                @endif
+
+                                    <div class="modal fade" id="addMeetingRoomImageModal{{ $room->id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Add images — {{ $room->title }}</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <form action="{{ route('addMeetingRoomImage') }}" method="POST" enctype="multipart/form-data">
+                                                    @csrf
+                                                    <div class="modal-body">
+                                                        <input type="hidden" name="meeting_room_id" value="{{ $room->id }}">
+                                                        <label class="form-label">Images</label>
+                                                        <input type="file" name="image[]" class="form-control" multiple accept="image/*" required>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                        <button type="submit" class="btn btn-primary">Upload</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <p class="text-muted mb-0">No meeting rooms yet. Run migration or click &quot;Add room&quot;.</p>
+                                @endforelse
                             </div>
                         </div>
 
@@ -184,52 +266,72 @@
 
         @include('admin.includes.footer')
 
-
-        <!-- Add Image Modal -->
-<div class="modal fade" id="newImage">
-    <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-
-        <!-- Modal Header -->
-        <div class="modal-header">
-        <h4 class="modal-title">Adding New Image to {{ $data->title ?? '' }}</h4>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal fade" id="addMeetingRoomModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add meeting room</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form action="{{ route('addMeetingRoom') }}" method="POST">
+                        @csrf
+                        <div class="modal-body">
+                            <input type="hidden" name="eventpage_id" value="{{ $data->id }}">
+                            <div class="mb-3">
+                                <label class="form-label">Name</label>
+                                <input type="text" name="title" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Maximum guests</label>
+                                <input type="number" name="max_persons" class="form-control" min="1" max="10000" value="50" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Create</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
 
-        <!-- Modal body -->
-        <div class="modal-body">
-            <form class="form" action="{{ route('addEventImage',['id'=>$data->id]) }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                <div class="modal-body">
-                    <div class="row mb-3">
-                        <div class="col-lg-6 col-sm-12">
-                            <label for="image" class="form-label">Upload Images</label>
-                            <div class="input-group">
-                                <input type="hidden" name="eventpage_id" value="{{ $data->id }}">
-                                <input type="file" name="image[]" class="form-control" id="image" multiple>
-                            </div>
-                            <small class="text-muted">You can upload one or multiple images.</small>
-                        </div>
+        <div class="modal fade" id="confirmDeleteRoomModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Remove meeting room</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">Delete this room and all of its gallery images? This cannot be undone.</div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <a href="#" id="deleteMeetingRoomConfirmBtn" class="btn btn-danger">Delete</a>
                     </div>
                 </div>
-            
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary text-black">
-                        <i class="fa fa-save"></i> Upload
-                    </button>
+            </div>
+        </div>
+
+        <div class="modal fade" id="replaceMeetingRoomImageModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Replace gallery image</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form id="replaceMeetingRoomImageForm" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="modal-body">
+                            <label class="form-label">New image</label>
+                            <input type="file" name="image" class="form-control" accept="image/*" required>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Upload</button>
+                        </div>
+                    </form>
                 </div>
-            </form>
-            
+            </div>
         </div>
-
-        <!-- Modal footer -->
-        <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-        </div>
-
-    </div>
-    </div>
-</div>
 
 <!-- Delete Confirmation Modal -->
 <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
@@ -250,29 +352,6 @@
     </div>
 </div>
 
-<div class="modal fade" id="replaceEventImageModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Replace image file</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form id="replaceEventImageForm" method="POST" enctype="multipart/form-data">
-                @csrf
-                <div class="modal-body">
-                    <label class="form-label">New image</label>
-                    <input type="file" name="image" class="form-control" accept="image/*" required>
-                    <small class="text-muted d-block mt-2">Caption is unchanged unless you edit it in the table.</small>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Upload</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
 <script>
     function confirmDelete(deleteUrl) {
         document.getElementById('deleteConfirmBtn').setAttribute('href', deleteUrl);
@@ -280,13 +359,43 @@
         confirmModal.show();
     }
 
-    document.getElementById('replaceEventImageModal').addEventListener('show.bs.modal', function (event) {
-        var btn = event.relatedTarget;
-        var id = btn && btn.getAttribute('data-image-id');
-        var form = document.getElementById('replaceEventImageForm');
-        if (form && id) {
-            form.action = "{{ url('/updateEventImage') }}/" + id;
-        }
+    function confirmDeleteRoom(deleteUrl) {
+        document.getElementById('deleteMeetingRoomConfirmBtn').setAttribute('href', deleteUrl);
+        var confirmModal = new bootstrap.Modal(document.getElementById('confirmDeleteRoomModal'));
+        confirmModal.show();
+    }
+
+    (function () {
+        var el = document.getElementById('replaceMeetingRoomImageModal');
+        if (!el) return;
+        el.addEventListener('show.bs.modal', function (event) {
+            var btn = event.relatedTarget;
+            var id = btn && btn.getAttribute('data-mr-image-id');
+            var form = document.getElementById('replaceMeetingRoomImageForm');
+            if (form && id) {
+                form.action = "{{ url('/updateMeetingRoomImage') }}/" + id;
+            }
+        });
+    })();
+</script>
+<script>
+    $(document).ready(function () {
+        @foreach($meetingRooms as $room)
+        $('#meetingRoomDesc{{ $room->id }}').summernote({
+            placeholder: 'Short description for this room (shown on the public page)',
+            tabsize: 2,
+            height: 180,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture', 'video']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ]
+        });
+        @endforeach
     });
 </script>
 

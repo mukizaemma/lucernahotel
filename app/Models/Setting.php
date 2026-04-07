@@ -21,6 +21,9 @@ class Setting extends Model
         'restaurant_phone',
         'logo',
         'deliveryInfo',
+        'footer_delivered_by_enabled',
+        'footer_delivered_by_company',
+        'footer_delivered_by_url',
         'facebook',
         'twitter',
         'instagram',
@@ -34,5 +37,6 @@ class Setting extends Model
 
     protected $casts = [
         'star_rating' => 'integer',
+        'footer_delivered_by_enabled' => 'boolean',
     ];
 }

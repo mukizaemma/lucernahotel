@@ -1,6 +1,8 @@
-{{-- Full-width parallax background + transparent layer; icon/title + hover reveal --}}
+{{-- Full-width parallax background + transparent layer; icon/title + hover reveal.
+     Optional $whyChooseUsLayout: 'full' (default) | 'meetings' — contained column for Meetings page. --}}
 @if(isset($whyChooseUsItems) && $whyChooseUsItems->isNotEmpty())
 @php
+    $wcuLayout = $whyChooseUsLayout ?? 'full';
     $wcuIcons = [
         'fa-location-dot',
         'fa-hands-praying',
@@ -19,7 +21,11 @@
             $wcuBgUrl = asset('storage/images/about/' . $about->image2);
         }
     }
+    $wcuCardColClass = $wcuLayout === 'meetings' ? 'col-6' : 'col-12 col-sm-6 col-xl-3';
 @endphp
+@if($wcuLayout === 'meetings')
+<div class="site-why-choose-parallax-wrap site-why-choose-parallax-wrap--meetings">
+@else
 <div
     class="site-why-choose-parallax-wrap jarallax"
     data-speed="0.5"
@@ -27,22 +33,34 @@
 >
     <img class="jarallax-img" src="{{ $wcuBgUrl }}" alt="" loading="lazy" decoding="async" width="1920" height="1080">
     <div class="site-why-choose__veil" aria-hidden="true"></div>
+@endif
 
-    <section class="site-why-choose rts__section section__padding" aria-labelledby="site-why-choose-heading">
-        <div class="container position-relative">
-            <div class="row justify-content-center text-center mb-50 mb-lg-60">
-                <div class="col-lg-8">
-                    <h2 id="site-why-choose-heading" class="site-why-choose__heading section__title">Why Choose Us</h2>
-                    <p class="site-why-choose__lead font-sm mb-0">
-                        Hover for details; on phones we show a short excerpt under each title.
-                    </p>
+    <section class="site-why-choose {{ $wcuLayout === 'meetings' ? 'site-why-choose--meetings' : '' }} rts__section {{ $wcuLayout === 'meetings' ? 'py-4 py-lg-4' : 'section__padding' }}" aria-labelledby="site-why-choose-heading">
+        <div class="{{ $wcuLayout === 'meetings' ? 'w-100 position-relative' : 'container position-relative' }}">
+            @if($wcuLayout === 'meetings')
+                <div class="row text-center text-lg-start mb-3 mb-lg-4">
+                    <div class="col-12">
+                        <h2 id="site-why-choose-heading" class="site-why-choose__heading section__title mb-2">Why Choose Us</h2>
+                        <p class="site-why-choose__lead font-sm mb-0 site-why-choose__lead--meetings">
+                            Hover for details; on phones we show a short excerpt under each title.
+                        </p>
+                    </div>
                 </div>
-            </div>
-            <div class="row g-3 g-lg-4 justify-content-center">
+            @else
+                <div class="row justify-content-center text-center mb-50 mb-lg-60">
+                    <div class="col-lg-8">
+                        <h2 id="site-why-choose-heading" class="site-why-choose__heading section__title">Why Choose Us</h2>
+                        <p class="site-why-choose__lead font-sm mb-0">
+                            Hover for details; on phones we show a short excerpt under each title.
+                        </p>
+                    </div>
+                </div>
+            @endif
+            <div class="row g-3 g-lg-3 {{ $wcuLayout === 'meetings' ? 'justify-content-start' : 'justify-content-center' }}">
                 @foreach($whyChooseUsItems as $item)
-                <div class="col-12 col-sm-6 col-xl-3">
+                <div class="{{ $wcuCardColClass }}">
                     <article
-                        class="site-why-choose__card"
+                        class="site-why-choose__card {{ $wcuLayout === 'meetings' ? 'site-why-choose__card--meetings' : '' }}"
                         tabindex="0"
                         @if(filled($item->description))
                             aria-label="{{ $item->title }}. {{ Str::limit(strip_tags($item->description), 200) }}"

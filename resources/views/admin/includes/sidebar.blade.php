@@ -23,7 +23,8 @@
             <a href="{{ route('getRooms') }}" class="nav-item nav-link"> <i class="fas fa-bed me-2"></i>Rooms</a>
             {{-- <a href="{{ route('getTrips') }}" class="nav-item nav-link"> <i class="fas fa-map-marked-alt me-2"></i>Tours</a>
             <a href="{{ route('getPromotions') }}" class="nav-item nav-link"> <i class="fas fa-tags me-2"></i>Promotions</a> --}}
-            {{-- <a href="{{ route('resto') }}" class="nav-item nav-link"> <i class="fas fa-utensils me-2"></i>Restaurant</a> --}}
+            <a href="{{ route('resto') }}" class="nav-item nav-link"> <i class="fas fa-utensils me-2"></i>Dining page</a>
+            <a href="{{ route('eventsPage') }}" class="nav-item nav-link"> <i class="fas fa-map-marked-alt me-2"></i>Meetings &amp; Events</a>
             <a href="{{ route('getFacilities') }}" class="nav-item nav-link"> <i class="fas fa-concierge-bell me-2"></i>Facilities</a>
             <a href="{{ route('getBlogs') }}" class="nav-item nav-link"> <i class="fas fa-pen-nib me-2"></i>Updates</a>
 

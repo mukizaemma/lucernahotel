@@ -28,6 +28,7 @@ use App\Models\Subscriber;
 use App\Models\BlogComment;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use App\Models\Facilityimage;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
@@ -122,7 +123,7 @@ class HomeController extends Controller
 
     public function gallery()
     {
-        return view('frontend.gallery', PublicWebsiteData::gallery());
+        return \Livewire\Livewire::mount(\App\Livewire\Public\GalleryPage::class);
     }
 
     public function contact()
@@ -472,23 +473,36 @@ class HomeController extends Controller
         $setting = Setting::first();
         $adminEmail = $setting?->email ?: config('mail.from.address');
 
+        $adminSent = false;
+        $guestSent = false;
+        $guestAttempted = filled($message->email);
+
         if (filled($adminEmail)) {
             try {
                 Mail::to($adminEmail)->send(new ContactEnquiryAdminMail($message));
+                $adminSent = true;
             } catch (\Throwable $e) {
                 Log::error('Contact enquiry admin email failed', ['exception' => $e]);
             }
         }
 
-        if (filled($message->email)) {
+        if ($guestAttempted) {
             try {
                 Mail::to($message->email)->send(new ContactEnquiryGuestMail($message));
+                $guestSent = true;
             } catch (\Throwable $e) {
                 Log::error('Contact enquiry guest email failed', ['exception' => $e]);
             }
         }
 
-        return redirect()->back()->with('success', 'Thank you for reaching out — we will get back to you soon.');
+        return $this->redirectBackWithContactEmailSwal(
+            redirect()->back(),
+            $adminSent,
+            $guestSent,
+            $guestAttempted,
+            'Message received',
+            'Thank you for reaching out — we will get back to you soon.'
+        );
     }
 
     public function submitProposal(Request $request)
@@ -499,8 +513,11 @@ class HomeController extends Controller
             'phone' => 'required|string|max:60',
             'email' => 'required|email|max:255',
             'preferred_date' => 'required|date|after_or_equal:today',
+            'number_of_days' => 'required|integer|min:1|max:365',
             'event_type' => 'nullable|string|max:64',
             'party_size' => 'nullable|integer|min:1',
+            'meeting_room' => 'nullable|string|max:255',
+            'additional_requests' => 'nullable|string|max:5000',
         ]);
 
         $label = $validated['proposal_source'] === 'dining' ? 'Dining' : 'Meetings & events';
@@ -508,12 +525,21 @@ class HomeController extends Controller
 
         $lines = [
             'Preferred date: '.$validated['preferred_date'],
+            'Number of days: '.(int) $validated['number_of_days'],
         ];
         if (filled($validated['event_type'] ?? null)) {
             $lines[] = 'Event type: '.$validated['event_type'];
         }
         if (array_key_exists('party_size', $validated) && $validated['party_size'] !== null) {
             $lines[] = 'Party size: '.$validated['party_size'];
+        }
+        if (filled($validated['meeting_room'] ?? null)) {
+            $lines[] = 'Meeting room: '.$validated['meeting_room'];
+        }
+        $extra = trim((string) ($validated['additional_requests'] ?? ''));
+        if ($extra !== '') {
+            $lines[] = 'Additional requests:';
+            $lines[] = $extra;
         }
         $lines[] = 'Source: '.$label;
 
@@ -529,9 +555,13 @@ class HomeController extends Controller
         $setting = Setting::first();
         $adminEmail = $setting?->email ?: config('mail.from.address');
 
+        $adminSent = false;
+        $guestSent = false;
+
         if (filled($adminEmail)) {
             try {
                 Mail::to($adminEmail)->send(new ContactEnquiryAdminMail($message));
+                $adminSent = true;
             } catch (\Throwable $e) {
                 Log::error('Proposal enquiry admin email failed', ['exception' => $e]);
             }
@@ -539,13 +569,19 @@ class HomeController extends Controller
 
         try {
             Mail::to($message->email)->send(new ContactEnquiryGuestMail($message));
+            $guestSent = true;
         } catch (\Throwable $e) {
             Log::error('Proposal enquiry guest email failed', ['exception' => $e]);
         }
 
-        return redirect()->back()
-            ->with('success', 'Thank you — we received your request and will follow up shortly.')
-            ->with('proposal_flash', true);
+        return $this->redirectBackWithContactEmailSwal(
+            redirect()->back(),
+            $adminSent,
+            $guestSent,
+            true,
+            'Request received',
+            'Your proposal request was saved. We will follow up shortly.'
+        );
     }
 
     public function testimony(Request $request){
@@ -584,5 +620,57 @@ class HomeController extends Controller
         }
     }
 
+    /**
+     * Flash SweetAlert payload: enquiry is always saved; describe whether notification emails succeeded.
+     *
+     * @param  bool  $guestAttempted  True when a guest confirmation email was attempted (address present).
+     */
+    private function redirectBackWithContactEmailSwal(
+        RedirectResponse $redirect,
+        bool $adminSent,
+        bool $guestSent,
+        bool $guestAttempted,
+        string $title,
+        string $savedLine
+    ): RedirectResponse {
+        $html = '<p>'.e($savedLine).'</p>';
+
+        if (! $guestAttempted) {
+            if ($adminSent) {
+                $html .= '<p>Our team was notified by email.</p>';
+                $icon = 'success';
+            } else {
+                $html .= '<p>We could not send email to our team. Your message was saved; we will follow up when possible.</p>';
+                $icon = 'warning';
+            }
+
+            return $redirect->with('swal', [
+                'icon' => $icon,
+                'title' => $title,
+                'html' => $html,
+            ]);
+        }
+
+        if ($adminSent && $guestSent) {
+            $html .= '<p>Email notifications were sent to our team and to your address.</p>';
+            $icon = 'success';
+        } elseif (! $adminSent && ! $guestSent) {
+            $html .= '<p>We could not send email notifications. Your message was saved; we will follow up using your contact details.</p>';
+            $icon = 'warning';
+        } else {
+            $html .= '<p>'
+                .($adminSent ? 'Our team was notified by email.' : 'Could not notify our team by email.')
+                .' '
+                .($guestSent ? 'A confirmation was sent to your email.' : 'Could not send a confirmation to your email.')
+                .'</p>';
+            $icon = 'warning';
+        }
+
+        return $redirect->with('swal', [
+            'icon' => $icon,
+            'title' => $title,
+            'html' => $html,
+        ]);
+    }
 
 }

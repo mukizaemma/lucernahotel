@@ -30,7 +30,10 @@ class SettingsController extends Controller
 
         $about = About::first();
 
-        return view('admin.setting', compact('data', 'setting', 'about'));
+        $canEditDelivery = Auth::check()
+            && strtolower((string) Auth::user()->email) === 'admin@iremetech.com';
+
+        return view('admin.setting', compact('data', 'setting', 'about', 'canEditDelivery'));
     }
 
 
@@ -96,6 +99,40 @@ class SettingsController extends Controller
         else{
             abort(404);
         }
+    }
+
+    /**
+     * Footer "Delivered by" line (company + URL, show/hide) — only editable by admin@iremetech.com.
+     */
+    public function updateFooterDeliveredBy(Request $request)
+    {
+        if (! Auth::check() || strtolower((string) Auth::user()->email) !== 'admin@iremetech.com') {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'footer_delivered_by_company' => 'nullable|string|max:255',
+            'footer_delivered_by_url' => 'nullable|string|max:500',
+        ]);
+
+        $url = trim((string) ($validated['footer_delivered_by_url'] ?? ''));
+        if ($url !== '' && ! filter_var($url, FILTER_VALIDATE_URL)) {
+            return redirect()->back()
+                ->withErrors(['footer_delivered_by_url' => 'Enter a valid URL (including https://) or leave empty.'])
+                ->withInput();
+        }
+
+        $setting = Setting::first();
+        if (! $setting) {
+            return redirect()->back()->with('error', 'No settings record found.');
+        }
+
+        $setting->footer_delivered_by_enabled = $request->boolean('footer_delivered_by_enabled');
+        $setting->footer_delivered_by_company = trim((string) ($validated['footer_delivered_by_company'] ?? ''));
+        $setting->footer_delivered_by_url = $url;
+        $setting->save();
+
+        return redirect()->back()->with('success', 'Footer “Delivered by” settings updated successfully.');
     }
 
     /**

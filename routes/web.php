@@ -9,6 +9,7 @@ use App\Livewire\Public\BlogPostPage;
 use App\Livewire\Public\BookNowPage;
 use App\Livewire\Public\ContactPage;
 use App\Livewire\Public\EventsPage;
+use App\Livewire\Public\MeetingRoomShowPage;
 use App\Livewire\Public\FacilitiesPage;
 use App\Livewire\Public\FacilityShowPage;
 use App\Livewire\Public\GalleryPage;
@@ -184,6 +185,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     
     Route::get('/setting',[App\Http\Controllers\SettingsController::class,'setting'])->name('setting');
     Route::post('/saveSetting',[App\Http\Controllers\SettingsController::class,'saveSetting'])->name('saveSetting');
+    Route::post('/setting/footer-delivered-by',[App\Http\Controllers\SettingsController::class,'updateFooterDeliveredBy'])->name('setting.footer-delivered-by.update');
     Route::post('/setting/keywords',[App\Http\Controllers\SettingsController::class,'updateKeywords'])->name('setting.keywords.update');
     
     Route::get('/homePage',[App\Http\Controllers\SettingsController::class,'homePage'])->name('homePage');
@@ -198,6 +200,14 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/updateEventImage/{id}', [App\Http\Controllers\PagesController::class, 'updateEventImage'])->name('updateEventImage');
     Route::post('/reorderEventImage/{id}', [App\Http\Controllers\PagesController::class, 'reorderEventImage'])->name('reorderEventImage');
     Route::get('/deleteEventImage/{id}', [App\Http\Controllers\PagesController::class, 'deleteEventImage'])->name('deleteEventImage');
+
+    Route::post('/saveMeetingRoom/{id}', [App\Http\Controllers\PagesController::class, 'saveMeetingRoom'])->name('saveMeetingRoom');
+    Route::post('/addMeetingRoom', [App\Http\Controllers\PagesController::class, 'addMeetingRoom'])->name('addMeetingRoom');
+    Route::get('/deleteMeetingRoom/{id}', [App\Http\Controllers\PagesController::class, 'deleteMeetingRoom'])->name('deleteMeetingRoom');
+    Route::post('/addMeetingRoomImage', [App\Http\Controllers\PagesController::class, 'addMeetingRoomImage'])->name('addMeetingRoomImage');
+    Route::post('/updateMeetingRoomImage/{id}', [App\Http\Controllers\PagesController::class, 'updateMeetingRoomImage'])->name('updateMeetingRoomImage');
+    Route::post('/reorderMeetingRoomImage/{id}', [App\Http\Controllers\PagesController::class, 'reorderMeetingRoomImage'])->name('reorderMeetingRoomImage');
+    Route::get('/deleteMeetingRoomImage/{id}', [App\Http\Controllers\PagesController::class, 'deleteMeetingRoomImage'])->name('deleteMeetingRoomImage');
 
     Route::get('/resto', [App\Http\Controllers\PagesController::class, 'resto'])->name('resto');
     Route::post('/saveResto/{id}', [App\Http\Controllers\PagesController::class, 'saveResto'])->name('saveResto');
@@ -342,6 +352,9 @@ Route::get('/facilities/{slug}', FacilityShowPage::class)->name('facility');
 Route::get('/activities', ActivitiesPage::class)->name('activities');
 Route::get('/activities/{slug}', ActivityShowPage::class)->name('activity');
 Route::get('/meetings-events', EventsPage::class)->name('meetings-events');
+Route::get('/meetings-events/{slug}', MeetingRoomShowPage::class)
+    ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
+    ->name('meetings-events.room');
 Route::get('/spa-wellness', SpaWellnessPage::class)->name('spa-wellness');
 Route::get('/terms-and-conditions', TermsPage::class)->name('terms');
 

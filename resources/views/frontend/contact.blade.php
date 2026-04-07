@@ -21,7 +21,7 @@
                         <i class="fa-solid fa-envelope-open-text" aria-hidden="true"></i>
                         <span>Send us a message</span>
                     </div>
-                    <h3 class="mb-10 section__title" style="font-size: 1.35rem;">Enquiry form</h3>
+                    <h3 class="mb-10 section__title section__title--compact">Enquiry form</h3>
 
                     @if(session('success'))
                         <div class="home-cta__alert home-cta__alert--success mb-20" role="status">{{ session('success') }}</div>

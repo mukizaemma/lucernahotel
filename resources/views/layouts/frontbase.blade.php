@@ -8,6 +8,12 @@
     <meta name="description" content="{{$setting?->company ?? ''}}">
     <meta name="keywords" content="{{$setting?->keywords ?? ''}}">
     <meta name="robots" content="index, follow">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- for open graph social media -->
     <meta property="og:title" content="{{$setting?->company ?? ''}}">
     <meta property="og:description" content="{{$setting?->company ?? ''}}">
@@ -41,6 +47,7 @@
             --brand-primary: #0356b7;
             --brand-primary-dark: #023d7a;
             --swiper-theme-color: #0356b7;
+            /* Typography scale lives in assets/css/style.css (:root); headings use these via cascade */
         }
         a.text-primary,
         .text-primary {
@@ -56,7 +63,7 @@
         h1, h2, h3, h4, h5, h6 {
             font-family: 'Playfair Display', serif;
             font-weight: 600;
-            line-height: 1.3;
+            line-height: var(--lh-heading, 1.25);
         }
         .site-footer--lux .footer__social-chip:hover {
             transform: translateY(-3px);
@@ -209,26 +216,38 @@
 
 <body>
 
-        @if (session('success'))
+        @if (session('swal'))
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                var swalOpts = @json(session('swal'));
+                if (swalOpts && typeof swalOpts === 'object') {
+                    if (!swalOpts.confirmButtonColor) {
+                        swalOpts.confirmButtonColor = (swalOpts.icon === 'error') ? '#d33' : '#0356b7';
+                    }
+                    Swal.fire(swalOpts);
+                }
+            });
+        </script>
+    @elseif (session('success'))
         <script>
             document.addEventListener("DOMContentLoaded", function () {
                 Swal.fire({
                     icon: 'success',
                     title: 'Success!',
-                    text: '{{ session('success') }}',
-                    confirmButtonColor: '#25D366'
+                    text: @json(session('success')),
+                    confirmButtonColor: '#0356b7'
                 });
             });
         </script>
     @endif
 
-    @if (session('error'))
+    @if (!session('swal') && session('error'))
         <script>
             document.addEventListener("DOMContentLoaded", function () {
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops!',
-                    text: '{{ session('error') }}',
+                    text: @json(session('error')),
                     confirmButtonColor: '#d33'
                 });
             });
@@ -649,7 +668,7 @@
     </div>
     <!-- offcanvase menu end -->
 
-    @if(! request()->routeIs('home'))
+    @if(! request()->routeIs('home') && ! request()->routeIs('meetings-events'))
         @include('layouts.includes.why-choose-us')
     @endif
 
@@ -866,7 +885,21 @@
             <div class="container">
                 <div class="row">
                     <div class="copyright__wrapper" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
-                        <p class="mb-0">© {{ date('Y') }} {{ $setting?->company }}. All rights reserved. Delivered by <a href="https://iremetech.com" target="_blank" rel="noopener noreferrer">Ireme Technologies</a>.</p>
+                        <p class="mb-0">
+                            © {{ date('Y') }} {{ $setting?->company }}. All rights reserved.
+                            @if($setting?->footer_delivered_by_enabled && filled(trim((string) ($setting->footer_delivered_by_company ?? ''))))
+                                Delivered by
+                                @php
+                                    $creditUrl = trim((string) ($setting->footer_delivered_by_url ?? ''));
+                                    $creditName = trim((string) $setting->footer_delivered_by_company);
+                                @endphp
+                                @if($creditUrl !== '' && filter_var($creditUrl, FILTER_VALIDATE_URL))
+                                    <a href="{{ $creditUrl }}" target="_blank" rel="noopener noreferrer">{{ $creditName }}</a>.
+                                @else
+                                    {{ $creditName }}.
+                                @endif
+                            @endif
+                        </p>
                     </div>
                 </div>
             </div>
@@ -923,7 +956,16 @@
             e.preventDefault();
             var recaptchaResponse = grecaptcha.getResponse();
             if (!recaptchaResponse) {
-                alert("Please confirm you are not a robot.");
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'reCAPTCHA',
+                        text: 'Please confirm you are not a robot.',
+                        confirmButtonColor: '#0356b7'
+                    });
+                } else {
+                    alert("Please confirm you are not a robot.");
+                }
                 return false;
             }
             this.submit();

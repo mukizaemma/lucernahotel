@@ -2,7 +2,7 @@
         <div class="banner__slider overflow-hidden">
             <div class="swiper-wrapper">
                 <!-- single slider item -->
-                @foreach ($slides as $slide )
+                @foreach ($slides as $index => $slide )
                 <div class="swiper-slide">
                     <div class="banner__slider__image">
                         @if($slide->media_type === 'video')
@@ -49,7 +49,7 @@
                                 </video>
                             @endif
                         @else
-                            <img src="{{ asset('storage/' . ($slide->image ?? 'slides/default.jpg')) }}" alt="{{ $slide->heading ?? 'Slide' }}" loading="lazy">
+                            <img src="{{ asset('storage/' . ($slide->image ?? 'slides/default.jpg')) }}" alt="{{ $slide->heading ?? 'Slide' }}" loading="{{ $index === 0 ? 'eager' : 'lazy' }}" decoding="async" @if($index === 0) fetchpriority="high" @endif>
                         @endif
                     </div>
                     <div class="container">

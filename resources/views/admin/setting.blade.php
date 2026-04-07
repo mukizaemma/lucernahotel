@@ -30,6 +30,11 @@
             <li class="nav-item">
                 <a class="nav-link" data-bs-toggle="tab" href="#seo">SEO Keywords</a>
             </li>
+            @if(!empty($canEditDelivery))
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#footer-delivered-by">Delivered by (footer)</a>
+            </li>
+            @endif
         </ul>
 
         <div class="tab-content">
@@ -235,6 +240,65 @@
                     </div>
                 </div>
             </div>
+
+            @if(!empty($canEditDelivery))
+            {{-- Tab: Footer “Delivered by” — only for admin@iremetech.com --}}
+            <div id="footer-delivered-by" class="tab-pane fade">
+                <div class="card shadow-sm border-0 border-start border-primary border-3">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-1">Delivered by (footer)</h5>
+                        <p class="text-muted small mb-0">Controls the credit line in the site footer. Only visible to the designated administrator account.</p>
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ route('setting.footer-delivered-by.update') }}" method="POST">
+                            @csrf
+                            <div class="form-check form-switch mb-4">
+                                <input type="hidden" name="footer_delivered_by_enabled" value="0">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    name="footer_delivered_by_enabled"
+                                    id="footer_delivered_by_enabled"
+                                    value="1"
+                                    @checked(old('footer_delivered_by_enabled', $data->footer_delivered_by_enabled ?? false))
+                                >
+                                <label class="form-check-label" for="footer_delivered_by_enabled">Show “Delivered by” in the footer</label>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label" for="footer_delivered_by_company">Company / credit name</label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        id="footer_delivered_by_company"
+                                        name="footer_delivered_by_company"
+                                        value="{{ old('footer_delivered_by_company', $data->footer_delivered_by_company ?? '') }}"
+                                        placeholder="e.g. Ireme Technologies"
+                                        maxlength="255"
+                                    >
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="footer_delivered_by_url">URL</label>
+                                    <input
+                                        type="url"
+                                        class="form-control"
+                                        id="footer_delivered_by_url"
+                                        name="footer_delivered_by_url"
+                                        value="{{ old('footer_delivered_by_url', $data->footer_delivered_by_url ?? '') }}"
+                                        placeholder="https://example.com"
+                                        maxlength="500"
+                                    >
+                                    <p class="text-muted small mb-0 mt-1">If empty, the name is shown without a link.</p>
+                                </div>
+                            </div>
+                            <div class="pt-3">
+                                <button type="submit" class="btn btn-primary">Save footer credit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            @endif
 
             {{-- Tab 3: SEO Keywords — one card, one form (only keywords textarea) --}}
             <div id="seo" class="tab-pane fade">

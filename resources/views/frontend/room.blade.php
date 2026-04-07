@@ -616,7 +616,16 @@ document.addEventListener('DOMContentLoaded', function() {
     checkoutInput.addEventListener('change', function() {
         if (checkinInput.value) {
             if (this.value <= checkinInput.value) {
-                alert('Check-out date must be after check-in date');
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Dates',
+                        text: 'Check-out date must be after check-in date',
+                        confirmButtonColor: '#0356b7'
+                    });
+                } else {
+                    alert('Check-out date must be after check-in date');
+                }
                 this.value = '';
                 return;
             }

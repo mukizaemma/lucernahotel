@@ -61,7 +61,7 @@
             <div class="col-lg-8 mx-auto">
                 <div class="home-cta__panel site-form-panel" style="background: #f9f9f9; padding: 40px; border-radius: 12px;">
                     <p class="home-cta__form-note mb-20 text-center">Fields marked <span class="home-cta__req" aria-hidden="true">*</span> are required.</p>
-                    <h3 class="text-center mb-30 section__title" style="font-size: 1.35rem;">Share Your Experience</h3>
+                    <h3 class="text-center mb-30 section__title section__title--compact">Share Your Experience</h3>
                     <form action="{{ route('reviews.store') }}" method="POST" class="home-cta__form site-form">
                         @csrf
                         <div class="row g-20">

@@ -8,6 +8,7 @@ use App\Models\BlogComment;
 use App\Models\Category;
 use App\Models\Eventpage;
 use App\Models\Facility;
+use App\Models\MeetingRoom;
 use App\Models\Gallery;
 use App\Models\HotelContact;
 use App\Models\PageHero;
@@ -278,22 +279,54 @@ class PublicWebsiteData
 
     public static function events(): array
     {
-        $event = Eventpage::with('images')->first();
+        $event = Eventpage::with(['meetingRooms.images'])->first();
         if (! $event) {
             $event = Eventpage::create([
                 'title' => 'Meetings & Events',
                 'description' => 'Host your meetings and events with us.',
                 'details' => '',
             ]);
+            $event->load(['meetingRooms.images']);
         }
-        $images = $event->images ?? collect();
+        MeetingRoom::ensureDefaultsForEventpage($event);
+        $event->load(['meetingRooms.images']);
+
+        $meetingRooms = $event->meetingRooms ?? collect();
+        $setting = Setting::first();
+        $about = About::first();
+        $pageHero = PageHero::getBySlug('meetings-events');
+        $whyChooseUsItems = WhyChooseUsItem::query()->orderBy('sort_order')->orderBy('id')->get();
+
+        return [
+            'event' => $event,
+            'meetingRooms' => $meetingRooms,
+            'setting' => $setting,
+            'about' => $about,
+            'pageHero' => $pageHero,
+            'whyChooseUsItems' => $whyChooseUsItems,
+        ];
+    }
+
+    public static function meetingRoomShow(string $slug): array
+    {
+        $room = MeetingRoom::with(['images', 'eventpage'])
+            ->where('slug', $slug)
+            ->firstOrFail();
+
+        $otherMeetingRooms = MeetingRoom::query()
+            ->where('eventpage_id', $room->eventpage_id)
+            ->where('id', '!=', $room->id)
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get();
+
         $setting = Setting::first();
         $about = About::first();
         $pageHero = PageHero::getBySlug('meetings-events');
 
         return [
-            'event' => $event,
-            'images' => $images,
+            'room' => $room,
+            'otherMeetingRooms' => $otherMeetingRooms,
             'setting' => $setting,
             'about' => $about,
             'pageHero' => $pageHero,
@@ -350,33 +383,15 @@ class PublicWebsiteData
         ];
     }
 
-    public static function gallery(): array
+    /**
+     * Static data for the public gallery page (images/videos load in batches via Livewire).
+     */
+    public static function galleryPageStatic(): array
     {
-        $galleryImages = Gallery::where('media_type', 'image')
-            ->whereNotNull('image')
-            ->where('image', '!=', '')
-            ->oldest()
-            ->paginate(12);
-        $allGalleryImagesForLightbox = Gallery::where('media_type', 'image')
-            ->whereNotNull('image')
-            ->where('image', '!=', '')
-            ->oldest()
-            ->get();
-        $galleryVideos = Gallery::whereNotNull('youtube_link')
-            ->where('youtube_link', '!=', '')
-            ->oldest()
-            ->get();
-        $setting = Setting::first();
-        $about = About::first();
-        $pageHero = PageHero::getBySlug('gallery');
-
         return [
-            'galleryImages' => $galleryImages,
-            'allGalleryImagesForLightbox' => $allGalleryImagesForLightbox,
-            'galleryVideos' => $galleryVideos,
-            'setting' => $setting,
-            'about' => $about,
-            'pageHero' => $pageHero,
+            'setting' => Setting::first(),
+            'about' => About::first(),
+            'pageHero' => PageHero::getBySlug('gallery'),
         ];
     }
 
