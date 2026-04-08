@@ -34,13 +34,21 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use App\Models\Gallery;
 use App\Models\PageHero;
 use App\Models\TourActivity;
+use App\Mail\BlogCommentGuestMail;
+use App\Mail\BlogCommentsNotofications;
+use App\Mail\BookingSubmittedAdminMail;
+use App\Mail\BookingSubmittedGuestMail;
 use App\Mail\ContactEnquiryAdminMail;
 use App\Mail\ContactEnquiryGuestMail;
+use App\Mail\NewSubscriberNotification;
+use App\Mail\ReviewSubmittedAdminMail;
+use App\Mail\ReviewSubmittedGuestMail;
+use App\Mail\SubscriberThankYouMail;
 use App\Services\PublicWebsiteData;
+use App\Services\SiteNotificationMail;
 use Ramsey\Uuid\Uuid;
 
 
@@ -158,7 +166,17 @@ class HomeController extends Controller
         $review->status = 'pending';
         $review->save();
 
-        return redirect()->back()->with('success', 'Thank you for your review! It will be published after admin approval.');
+        $adminOk = SiteNotificationMail::sendToTeam(new ReviewSubmittedAdminMail($review));
+        $guestOk = SiteNotificationMail::sendToGuest($review->email, new ReviewSubmittedGuestMail($review));
+
+        return $this->redirectBackWithContactEmailSwal(
+            redirect()->back(),
+            $adminOk,
+            $guestOk,
+            true,
+            'Thank you',
+            'Your review was submitted. It will be published after admin approval.'
+        );
     }
 
     public function terms()
@@ -273,7 +291,18 @@ class HomeController extends Controller
         }
 
         if ($booking->save()) {
-            return redirect()->back()->with('success', 'Your reservation has been submitted successfully. We will get back to you soon.');
+            $booking->load(['room', 'facility', 'tourActivity']);
+            $adminOk = SiteNotificationMail::sendToTeam(new BookingSubmittedAdminMail($booking));
+            $guestOk = SiteNotificationMail::sendToGuest($booking->email, new BookingSubmittedGuestMail($booking));
+
+            return $this->redirectBackWithContactEmailSwal(
+                redirect()->back(),
+                $adminOk,
+                $guestOk,
+                true,
+                'Booking received',
+                'Your reservation request was saved. We will get back to you soon.'
+            );
         }
         return redirect()->back()->with('error', 'Something went wrong. Please try again later.');
     }
@@ -376,36 +405,32 @@ class HomeController extends Controller
         ]);
 
 
-        if($subscribed){
-            //$subscriber = Subscriber::where('email', $email)->firstOrFail();
-            //Mail::to("mukizaemma34@gmail.com")->send(new NewSubscriberNotification($subscriber));
-    
-            return redirect()->back()->with('success', 'Thank you for subscribing to Centre Saint Paul -Kigali, we will get back to you');
+        if ($subscribed) {
+            $adminOk = SiteNotificationMail::sendToTeam(new NewSubscriberNotification($subscribed));
+            $guestOk = SiteNotificationMail::sendToGuest($email, new SubscriberThankYouMail($email));
+
+            return $this->redirectBackWithContactEmailSwal(
+                redirect()->back(),
+                $adminOk,
+                $guestOk,
+                true,
+                'Subscribed',
+                'Thank you for joining our mailing list.'
+            );
         }
 
-        else{
-            return redirect()->back()->with('error', 'Something Went Wrong. Try again later!');
-        }        
-    
+        return redirect()->back()->with('error', 'Something Went Wrong. Try again later!');
     }
    
 
     public function sendMessage(Request $request)
     {
-        $email = $request->input('email');
-        if (is_string($email)) {
-            $email = trim($email) === '' ? null : trim($email);
-        } else {
-            $email = null;
-        }
-        $request->merge(['email' => $email]);
-
         $enquiryType = $request->input('enquiry_type', 'general');
         $rules = [
             'enquiry_type' => 'required|in:general,room',
             'names' => 'required|string|max:255',
             'phone' => 'required|string|max:60',
-            'email' => 'nullable|email|max:255',
+            'email' => 'required|email|max:255',
         ];
 
         if ($enquiryType === 'general') {
@@ -423,6 +448,8 @@ class HomeController extends Controller
         }
 
         $validated = $request->validate($rules);
+
+        $email = trim((string) $validated['email']);
 
         $payload = [
             'enquiry_type' => $validated['enquiry_type'],
@@ -470,36 +497,14 @@ class HomeController extends Controller
         $message = Message::create($payload);
         $message->load('room');
 
-        $setting = Setting::first();
-        $adminEmail = $setting?->email ?: config('mail.from.address');
-
-        $adminSent = false;
-        $guestSent = false;
-        $guestAttempted = filled($message->email);
-
-        if (filled($adminEmail)) {
-            try {
-                Mail::to($adminEmail)->send(new ContactEnquiryAdminMail($message));
-                $adminSent = true;
-            } catch (\Throwable $e) {
-                Log::error('Contact enquiry admin email failed', ['exception' => $e]);
-            }
-        }
-
-        if ($guestAttempted) {
-            try {
-                Mail::to($message->email)->send(new ContactEnquiryGuestMail($message));
-                $guestSent = true;
-            } catch (\Throwable $e) {
-                Log::error('Contact enquiry guest email failed', ['exception' => $e]);
-            }
-        }
+        $adminSent = SiteNotificationMail::sendToTeam(new ContactEnquiryAdminMail($message));
+        $guestSent = SiteNotificationMail::sendToGuest($message->email, new ContactEnquiryGuestMail($message));
 
         return $this->redirectBackWithContactEmailSwal(
             redirect()->back(),
             $adminSent,
             $guestSent,
-            $guestAttempted,
+            true,
             'Message received',
             'Thank you for reaching out — we will get back to you soon.'
         );
@@ -552,27 +557,8 @@ class HomeController extends Controller
             'message' => implode("\n", $lines),
         ]);
 
-        $setting = Setting::first();
-        $adminEmail = $setting?->email ?: config('mail.from.address');
-
-        $adminSent = false;
-        $guestSent = false;
-
-        if (filled($adminEmail)) {
-            try {
-                Mail::to($adminEmail)->send(new ContactEnquiryAdminMail($message));
-                $adminSent = true;
-            } catch (\Throwable $e) {
-                Log::error('Proposal enquiry admin email failed', ['exception' => $e]);
-            }
-        }
-
-        try {
-            Mail::to($message->email)->send(new ContactEnquiryGuestMail($message));
-            $guestSent = true;
-        } catch (\Throwable $e) {
-            Log::error('Proposal enquiry guest email failed', ['exception' => $e]);
-        }
+        $adminSent = SiteNotificationMail::sendToTeam(new ContactEnquiryAdminMail($message));
+        $guestSent = SiteNotificationMail::sendToGuest($message->email, new ContactEnquiryGuestMail($message));
 
         return $this->redirectBackWithContactEmailSwal(
             redirect()->back(),
@@ -584,40 +570,67 @@ class HomeController extends Controller
         );
     }
 
-    public function testimony(Request $request){
+    public function testimony(Request $request)
+    {
+        $validated = $request->validate([
+            'names' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'testimony' => 'required|string|min:10',
+        ]);
 
         $review = Review::create([
-            'names' => $request->input('names'),
-            'email' => $request->input('email'),
-            'testimony' => $request->input('testimony'),
+            'names' => $validated['names'],
+            'email' => $validated['email'],
+            'testimony' => $validated['testimony'],
+            'rating' => 5,
+            'status' => 'pending',
         ]);
-    
-        if (!$review) {
-            return redirect()->back()->with('error', 'Failed to submit your testimony. Please try again.');
-        }
-    
-        return redirect()->back()->with('success', 'Your testimony has submitted successfully!');
+
+        $adminOk = SiteNotificationMail::sendToTeam(new ReviewSubmittedAdminMail($review));
+        $guestOk = SiteNotificationMail::sendToGuest($review->email, new ReviewSubmittedGuestMail($review));
+
+        return $this->redirectBackWithContactEmailSwal(
+            redirect()->back(),
+            $adminOk,
+            $guestOk,
+            true,
+            'Thank you',
+            'Your testimony was submitted. It will be published after admin approval.'
+        );
     }
 
-    public function sendComment(Request $request) {
-        $user = auth()->user();
-    
-        $comment = BlogComment::create([
-            'blog_id' => $request->input('blog_id'),
-            'names' => $request->input('names'),
-            'email' => $request->input('email'),
-            'comment' => $request->input('comment'),
-            'user_id' => $user ? $user->id : null,
+    public function sendComment(Request $request)
+    {
+        $validated = $request->validate([
+            'blog_id' => 'required|exists:blogs,id',
+            'names' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'comment' => 'required|string|min:2|max:5000',
         ]);
-    
-        if ($comment) {
-            // Mail::to('mukizaemma34@gmail.com')->send(new BlogCommentsNotofications($comment));
-            return redirect()->back()->with('success', 'Comment added successfully');
-        }
-    
-        else{
-            return redirect()->back()->with('error', 'Failed to add the comment. Please try again.');
-        }
+
+        $user = auth()->user();
+
+        $comment = BlogComment::create([
+            'blog_id' => $validated['blog_id'],
+            'names' => $validated['names'],
+            'email' => $validated['email'],
+            'comment' => $validated['comment'],
+            'added_by' => $user?->id,
+        ]);
+
+        $comment->load('blog');
+
+        $adminOk = SiteNotificationMail::sendToTeam(new BlogCommentsNotofications($comment));
+        $guestOk = SiteNotificationMail::sendToGuest($comment->email, new BlogCommentGuestMail($comment));
+
+        return $this->redirectBackWithContactEmailSwal(
+            redirect()->back(),
+            $adminOk,
+            $guestOk,
+            true,
+            'Comment received',
+            'Thank you — your comment was saved.'
+        );
     }
 
     /**

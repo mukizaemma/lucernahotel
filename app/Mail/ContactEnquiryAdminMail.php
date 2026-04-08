@@ -17,13 +17,22 @@ class ContactEnquiryAdminMail extends Mailable
 
     public function build(): self
     {
-        $prefix = 'New website enquiry';
-        if (($this->enquiry->enquiry_type ?? '') === 'proposal') {
-            $prefix = 'New proposal request';
-        }
+        $type = $this->enquiry->enquiry_type ?? 'general';
+
+        $prefix = $type === 'proposal' ? 'New proposal request' : 'New website enquiry';
+
+        $adminTitle = $type === 'proposal' ? 'New proposal request' : 'New website enquiry';
+        $typeLabel = match ($type) {
+            'room' => 'Room enquiry',
+            'proposal' => 'Proposal (meetings / dining)',
+            default => 'General information',
+        };
 
         return $this->subject($prefix.' — '.$this->enquiry->names)
             ->from(config('mail.from.address'), config('mail.from.name'))
-            ->view('emails.contact-enquiry-admin');
+            ->view('emails.contact-enquiry-admin', [
+                'adminTitle' => $adminTitle,
+                'typeLabel' => $typeLabel,
+            ]);
     }
 }

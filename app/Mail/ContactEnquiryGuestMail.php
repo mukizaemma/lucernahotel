@@ -22,8 +22,17 @@ class ContactEnquiryGuestMail extends Mailable
             $subject = 'We received your proposal request — '.config('app.name');
         }
 
+        $type = $this->enquiry->enquiry_type ?? 'general';
+        $enquiryTypeLine = match ($type) {
+            'room' => 'room enquiry',
+            'proposal' => 'proposal request',
+            default => 'message',
+        };
+
         return $this->subject($subject)
             ->from(config('mail.from.address'), config('mail.from.name'))
-            ->view('emails.contact-enquiry-guest');
+            ->view('emails.contact-enquiry-guest', [
+                'enquiryTypeLine' => $enquiryTypeLine,
+            ]);
     }
 }

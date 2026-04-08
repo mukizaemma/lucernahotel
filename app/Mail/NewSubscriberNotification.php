@@ -5,10 +5,10 @@ namespace App\Mail;
 use App\Models\Subscriber;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class NewSubscriberNotification extends Mailable
 {
@@ -24,7 +24,8 @@ class NewSubscriberNotification extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'New Subscriber Notification',
+            subject: 'New mailing list subscriber',
+            from: new Address(config('mail.from.address'), config('mail.from.name')),
         );
     }
 

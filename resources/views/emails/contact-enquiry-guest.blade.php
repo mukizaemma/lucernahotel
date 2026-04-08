@@ -7,7 +7,7 @@
 </head>
 <body style="font-family: Georgia, serif; line-height: 1.6; color: #333; max-width: 560px; margin: 0 auto; padding: 24px;">
     <h1 style="font-size: 20px; margin-bottom: 16px;">Thank you, {{ $enquiry->names }}</h1>
-    <p style="margin: 0 0 16px;">We have received your @if(($enquiry->enquiry_type ?? 'general') === 'room')room enquiry@elseif(($enquiry->enquiry_type ?? '') === 'proposal')proposal request@else message@endif and will get back to you as soon as we can.</p>
+    <p style="margin: 0 0 16px;">We have received your {{ $enquiryTypeLine }} and will get back to you as soon as we can.</p>
 
     <p style="margin: 24px 0;">
         <a href="{{ route('connect') }}" style="display: inline-block; background: #0356b7; color: #fff; text-decoration: none; padding: 12px 20px; border-radius: 6px; font-weight: bold; margin-right: 8px;">Book your stay</a>

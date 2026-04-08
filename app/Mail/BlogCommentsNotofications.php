@@ -7,6 +7,7 @@ use App\Models\BlogComment;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -24,7 +25,8 @@ class BlogCommentsNotofications extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Comments Notofications',
+            from: new Address(config('mail.from.address'), config('mail.from.name')),
+            subject: 'New blog comment',
         );
     }
 

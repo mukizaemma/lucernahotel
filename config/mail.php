@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('MAIL_MAILER', 'smtp'),
+    'default' => env('MAIL_MAILER', 'resend'),
 
     /*
     |--------------------------------------------------------------------------
@@ -34,6 +34,10 @@ return [
     */
 
     'mailers' => [
+        'resend' => [
+            'transport' => 'resend',
+        ],
+
         'smtp' => [
             'transport' => 'smtp',
             'url' => env('MAIL_URL'),
@@ -99,8 +103,23 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'iremetechnologies@gmail.com'),
-        'name' => env('MAIL_FROM_NAME', 'Hello There'),
+        'address' => env('MAIL_FROM_ADDRESS', 'info@lucernakabgayihotel.com'),
+        'name' => env('MAIL_FROM_NAME', 'Lucerna Kabgayi Hotel'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Public site notifications (team inbox + CC)
+    |--------------------------------------------------------------------------
+    |
+    | All website form notifications are sent TO the primary address with
+    | MAIL_NOTIFICATION_CC copied. Must match a verified domain in Resend.
+    |
+    */
+
+    'notification' => [
+        'admin_to' => env('MAIL_NOTIFICATION_TO', 'info@lucernakabgayihotel.com'),
+        'admin_cc' => env('MAIL_NOTIFICATION_CC', 'hotellucernakabgayi@gmail.com'),
     ],
 
     /*

@@ -13,7 +13,6 @@
     <p>A new subscriber has joined your mailing list. Here are the subscriber details:</p>
 
     <ul>
-        <li><strong>Name:</strong> {{ $subscriber->names }}</li>
         <li><strong>Email:</strong> {{ $subscriber->email }}</li>
     </ul>
 

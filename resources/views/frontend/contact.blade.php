@@ -68,9 +68,9 @@
                                     </div>
                                 </div>
                                 <div class="col-md-12">
-                                    <label for="contact-email" class="home-cta__label">Email <span class="home-cta__label-opt">(optional)</span></label>
+                                    <label for="contact-email" class="home-cta__label">Email <span class="home-cta__req">*</span></label>
                                     <div class="home-cta__field">
-                                        <input type="email" name="email" id="contact-email" class="form-control home-cta__input" inputmode="email" autocomplete="email" value="{{ old('email') }}" placeholder="name@example.com">
+                                        <input type="email" name="email" id="contact-email" class="form-control home-cta__input" inputmode="email" autocomplete="email" value="{{ old('email') }}" placeholder="name@example.com" required maxlength="255">
                                     </div>
                                 </div>
                             </div>
