@@ -140,7 +140,12 @@ class PublicWebsiteData
         $room = Room::with(['amenities', 'images'])->where('slug', $slug)->firstOrFail();
         $amenities = $room->amenities;
         $images = $room->images;
-        $allRooms = Room::where('id', '!=', $room->id)->where('status', 'Active')->oldest()->take(3)->get();
+        $allRooms = Room::with('images')
+            ->where('id', '!=', $room->id)
+            ->where('status', 'Active')
+            ->oldest()
+            ->take(3)
+            ->get();
         $setting = Setting::first();
         $about = About::first();
 

@@ -73,4 +73,41 @@ class Room extends Model
 
         return $base + ($extraAdults * $ea) + ($extraChildren * $ec) + ($extraBeds * $eb);
     }
+
+    /**
+     * Public URL for listing cards and "Other rooms" blocks.
+     * Paths in DB are relative to the storage disk root (same as asset('storage/…')).
+     */
+    public function publicThumbnailUrl(): string
+    {
+        if (filled($this->cover_image)) {
+            return asset('storage/'.ltrim($this->cover_image, '/'));
+        }
+
+        $firstImg = $this->relationLoaded('images')
+            ? $this->images->sortBy('id')->first()
+            : $this->images()->orderBy('id')->first();
+
+        if ($firstImg && filled($firstImg->image)) {
+            $path = $firstImg->image;
+
+            return asset('storage/'.ltrim($this->normalizeRoomImagePath($path), '/'));
+        }
+
+        if (filled($this->image)) {
+            return asset('storage/'.ltrim($this->normalizeRoomImagePath($this->image), '/'));
+        }
+
+        return asset('storage/rooms/default.jpg');
+    }
+
+    /**
+     * @param  string  $path  Filename only, or path under storage (e.g. images/rooms/photo.jpg)
+     */
+    private function normalizeRoomImagePath(string $path): string
+    {
+        $path = ltrim($path, '/');
+
+        return str_contains($path, '/') ? $path : 'images/rooms/'.$path;
+    }
 }

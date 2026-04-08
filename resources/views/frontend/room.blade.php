@@ -363,9 +363,10 @@
                 <div style="background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.1); transition: transform 0.3s;">
                     <div>
                         <a href="{{ route('room',['slug'=>$similarRoom->slug]) }}">
-                            <img src="{{ asset('storage/images/rooms/' . ($similarRoom->cover_image ?? $similarRoom->image ?? 'default.jpg')) }}" 
-                                 alt="{{ $similarRoom->title }}" 
-                                 style="width: 100%; height: 250px; object-fit: cover;">
+                            <img src="{{ $similarRoom->publicThumbnailUrl() }}"
+                                 alt="{{ $similarRoom->title }}"
+                                 style="width: 100%; height: 250px; object-fit: cover;"
+                                 loading="lazy">
                         </a>
                     </div>
                     <div style="padding: 20px;">
