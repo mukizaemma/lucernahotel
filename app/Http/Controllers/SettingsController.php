@@ -143,11 +143,22 @@ class SettingsController extends Controller
     {
         $validated = $request->validate([
             'booking_com_url' => 'nullable|string|max:4000',
+            'booking_com_review_score' => 'nullable|numeric|min:0|max:10',
+            'booking_com_review_count' => 'nullable|integer|min:0|max:99999999',
+            'booking_com_review_summary' => 'nullable|string|max:2000',
+            'booking_com_write_review_url' => 'nullable|string|max:4000',
             'tripadvisor_location_id' => 'nullable|string|max:32',
             'tripadvisor_hotel_url' => 'nullable|string|max:4000',
             'tripadvisor_write_review_url' => 'nullable|string|max:4000',
+            'tripadvisor_review_score' => 'nullable|numeric|min:0|max:5',
+            'tripadvisor_review_count' => 'nullable|integer|min:0|max:99999999',
+            'tripadvisor_review_summary' => 'nullable|string|max:2000',
             'google_place_url' => 'nullable|string|max:4000',
             'google_maps_embed_url' => 'nullable|string|max:4000',
+            'google_review_score' => 'nullable|numeric|min:0|max:5',
+            'google_review_count' => 'nullable|integer|min:0|max:99999999',
+            'google_review_summary' => 'nullable|string|max:2000',
+            'google_write_review_url' => 'nullable|string|max:4000',
             'whatsapp_e164' => 'nullable|string|max:32',
             'whatsapp_default_message' => 'nullable|string|max:2000',
             'channel_contact_email' => 'nullable|email|max:255',
@@ -160,17 +171,34 @@ class SettingsController extends Controller
 
         foreach ([
             'booking_com_url',
+            'booking_com_review_score',
+            'booking_com_review_count',
+            'booking_com_review_summary',
+            'booking_com_write_review_url',
             'tripadvisor_location_id',
             'tripadvisor_hotel_url',
             'tripadvisor_write_review_url',
+            'tripadvisor_review_score',
+            'tripadvisor_review_count',
+            'tripadvisor_review_summary',
             'google_place_url',
             'google_maps_embed_url',
+            'google_review_score',
+            'google_review_count',
+            'google_review_summary',
+            'google_write_review_url',
             'whatsapp_e164',
             'whatsapp_default_message',
             'channel_contact_email',
         ] as $key) {
             $v = $validated[$key] ?? null;
-            $setting->{$key} = is_string($v) && trim($v) === '' ? null : $v;
+            if ($v === null || (is_string($v) && trim($v) === '')) {
+                $setting->{$key} = null;
+            } elseif (in_array($key, ['booking_com_review_count', 'tripadvisor_review_count', 'google_review_count'], true)) {
+                $setting->{$key} = (int) $v;
+            } else {
+                $setting->{$key} = $v;
+            }
         }
 
         $setting->save();

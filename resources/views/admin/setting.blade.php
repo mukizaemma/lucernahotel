@@ -186,8 +186,29 @@
                             @csrf
                             <fieldset class="mb-4">
                                 <legend class="h6 text-secondary border-bottom pb-2 mb-3">Booking.com</legend>
-                                <label class="form-label" for="booking_com_url">Booking.com URL</label>
+                                <label class="form-label" for="booking_com_url">Booking.com property URL</label>
                                 <input type="url" class="form-control font-monospace small" id="booking_com_url" name="booking_com_url" value="{{ old('booking_com_url', $data->booking_com_url ?? '') }}" placeholder="https://www.booking.com/hotel/...">
+                                <p class="text-muted small mt-1 mb-3">Used for the public site — book / read guest scores shown on the property page.</p>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label" for="booking_com_review_score">Review score (display)</label>
+                                        <input type="number" step="0.1" min="0" max="10" class="form-control" id="booking_com_review_score" name="booking_com_review_score" value="{{ old('booking_com_review_score', $data->booking_com_review_score ?? '') }}" placeholder="e.g. 9.2">
+                                        <p class="text-muted small mb-0 mt-1">Booking.com uses 1–10 (e.g. “Exceptional 9.2”).</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label" for="booking_com_review_count">Number of reviews (display)</label>
+                                        <input type="number" min="0" class="form-control" id="booking_com_review_count" name="booking_com_review_count" value="{{ old('booking_com_review_count', $data->booking_com_review_count ?? '') }}" placeholder="e.g. 127">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label" for="booking_com_review_summary">Short summary (optional)</label>
+                                        <textarea class="form-control" id="booking_com_review_summary" name="booking_com_review_summary" rows="2" maxlength="2000" placeholder="One line shown on the reviews page — update when you refresh stats.">{{ old('booking_com_review_summary', $data->booking_com_review_summary ?? '') }}</textarea>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label" for="booking_com_write_review_url">Write-review link (optional)</label>
+                                        <input type="url" class="form-control font-monospace small" id="booking_com_write_review_url" name="booking_com_write_review_url" value="{{ old('booking_com_write_review_url', $data->booking_com_write_review_url ?? '') }}" placeholder="Often from Booking’s post-stay email, or leave empty">
+                                        <p class="text-muted small mb-0 mt-1">Booking.com normally invites verified guests by email. If you don’t have a direct URL, leave empty — the reviews page will only show “View on Booking.com”.</p>
+                                    </div>
+                                </div>
                             </fieldset>
                             <fieldset class="mb-4">
                                 <legend class="h6 text-secondary border-bottom pb-2 mb-3">TripAdvisor</legend>
@@ -204,6 +225,19 @@
                                         <label class="form-label" for="tripadvisor_write_review_url">Write review URL</label>
                                         <input type="url" class="form-control font-monospace small" id="tripadvisor_write_review_url" name="tripadvisor_write_review_url" value="{{ old('tripadvisor_write_review_url', $data->tripadvisor_write_review_url ?? '') }}">
                                     </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label" for="tripadvisor_review_score">Review score (display)</label>
+                                        <input type="number" step="0.1" min="0" max="5" class="form-control" id="tripadvisor_review_score" name="tripadvisor_review_score" value="{{ old('tripadvisor_review_score', $data->tripadvisor_review_score ?? '') }}" placeholder="e.g. 4.5">
+                                        <p class="text-muted small mb-0 mt-1">TripAdvisor bubble rating out of 5.</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label" for="tripadvisor_review_count">Number of reviews (display)</label>
+                                        <input type="number" min="0" class="form-control" id="tripadvisor_review_count" name="tripadvisor_review_count" value="{{ old('tripadvisor_review_count', $data->tripadvisor_review_count ?? '') }}">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label" for="tripadvisor_review_summary">Short summary (optional)</label>
+                                        <textarea class="form-control" id="tripadvisor_review_summary" name="tripadvisor_review_summary" rows="2" maxlength="2000" placeholder="Optional line for the reviews page.">{{ old('tripadvisor_review_summary', $data->tripadvisor_review_summary ?? '') }}</textarea>
+                                    </div>
                                 </div>
                             </fieldset>
                             <fieldset class="mb-4">
@@ -212,10 +246,30 @@
                                     <label class="form-label" for="google_place_url">Google Maps / Business place URL</label>
                                     <input type="url" class="form-control font-monospace small" id="google_place_url" name="google_place_url" value="{{ old('google_place_url', $data->google_place_url ?? '') }}">
                                 </div>
-                                <div class="mb-0">
+                                <div class="mb-3">
                                     <label class="form-label" for="google_maps_embed_url">Map embed URL (reviews page)</label>
                                     <input type="url" class="form-control font-monospace small" id="google_maps_embed_url" name="google_maps_embed_url" value="{{ old('google_maps_embed_url', $data->google_maps_embed_url ?? '') }}" placeholder="https://maps.google.com/maps?q=...&amp;output=embed">
                                     <p class="text-muted small mb-0 mt-1">Simple embed without API key, e.g. <code>https://maps.google.com/maps?q=lat,lng&amp;z=16&amp;output=embed</code></p>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label" for="google_review_score">Review score (display)</label>
+                                        <input type="number" step="0.1" min="0" max="5" class="form-control" id="google_review_score" name="google_review_score" value="{{ old('google_review_score', $data->google_review_score ?? '') }}" placeholder="e.g. 4.8">
+                                        <p class="text-muted small mb-0 mt-1">Google Maps rating out of 5.</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label" for="google_review_count">Number of reviews (display)</label>
+                                        <input type="number" min="0" class="form-control" id="google_review_count" name="google_review_count" value="{{ old('google_review_count', $data->google_review_count ?? '') }}">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label" for="google_review_summary">Short summary (optional)</label>
+                                        <textarea class="form-control" id="google_review_summary" name="google_review_summary" rows="2" maxlength="2000" placeholder="Optional line for the reviews page.">{{ old('google_review_summary', $data->google_review_summary ?? '') }}</textarea>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label" for="google_write_review_url">Write-review URL (optional)</label>
+                                        <input type="url" class="form-control font-monospace small" id="google_write_review_url" name="google_write_review_url" value="{{ old('google_write_review_url', $data->google_write_review_url ?? '') }}" placeholder="Leave empty to use the place URL above">
+                                        <p class="text-muted small mb-0 mt-1">If empty, the site uses the Google Maps / Business place URL for the “Write a review” button.</p>
+                                    </div>
                                 </div>
                             </fieldset>
                             <fieldset class="mb-4">
