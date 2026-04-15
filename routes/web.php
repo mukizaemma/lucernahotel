@@ -362,6 +362,9 @@ Route::get('/terms-and-conditions', TermsPage::class)->name('terms');
 Route::get('/reviews', ReviewsPage::class)->name('reviews');
 Route::get('/reviews/{id}', ReviewShowPage::class)->name('review');
 
+/** Client handover & user guide (noindex; not a Livewire page) */
+Route::view('/handover', 'frontend.handover')->name('handover');
+
 Route::get('/admin/login', [App\Http\Controllers\HomeController::class, 'adminLogin'])->name('adminLogin');
 Route::get('/user/account', [App\Http\Controllers\HomeController::class, 'newAccount'])->name('newAccount');
 Route::post('/createAccount', [App\Http\Controllers\HomeController::class, 'createAccount'])->name('createAccount');

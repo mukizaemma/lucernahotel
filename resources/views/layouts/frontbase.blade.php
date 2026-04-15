@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="description" content="{{$setting?->company ?? ''}}">
     <meta name="keywords" content="{{$setting?->keywords ?? ''}}">
-    <meta name="robots" content="index, follow">
+    <meta name="robots" content="@yield('meta_robots', 'index, follow')">
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
     <link rel="dns-prefetch" href="https://fonts.gstatic.com">
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
@@ -24,7 +24,8 @@
     <!-- favicon -->
     <link rel="icon" href="{{ asset('storage/images') . $setting?->logo }}" type="image/x-icon">
     <!-- title -->
-    <title>{{$setting?->company ?? ''}}</title>
+    <title>@hasSection('document_title')@yield('document_title')@else{{ $setting?->company ?? '' }}@endif</title>
+    @stack('head')
 
     <!-- google fonts - Uniform, readable fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -668,7 +669,7 @@
     </div>
     <!-- offcanvase menu end -->
 
-    @if(! request()->routeIs('home') && ! request()->routeIs('meetings-events'))
+    @if(! request()->routeIs('home') && ! request()->routeIs('meetings-events') && ! request()->routeIs('handover'))
         @include('layouts.includes.why-choose-us')
     @endif
 
