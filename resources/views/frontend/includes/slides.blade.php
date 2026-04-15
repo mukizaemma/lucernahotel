@@ -59,7 +59,7 @@
                                     {{-- <span class="h6 subtitle__icon">Centre Saint Paul - Kigali</span> --}}
                                     <h1>{{ $slide->heading }}</h1>
                                     <p class="sub__text">{{ $slide->subheading ?? '' }}</p>
-                                    <a href="{{ route('connect') }}" class="theme-btn btn-style fill no-border "><span>Book Now</span>
+                                    <a wire:navigate href="{{ route('connect') }}" class="theme-btn btn-style fill no-border "><span>Book Now</span>
                                     </a>
                                 </div>
                             </div>

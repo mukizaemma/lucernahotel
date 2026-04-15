@@ -1,7 +1,7 @@
 {{-- Matches home "Our Hotel Rooms" cards — expects $room (Room model) --}}
 <div class="col-12 col-md-6">
     <article class="home-room-card">
-        <a href="{{ route('room', ['slug' => $room->slug]) }}" class="home-room-card__media">
+        <a wire:navigate href="{{ route('room', ['slug' => $room->slug]) }}" class="home-room-card__media">
             <img src="{{ asset('storage/' . ($room->cover_image ?? 'rooms/default.jpg')) }}"
                 alt="{{ $room->title }}"
                 loading="lazy"
@@ -10,7 +10,7 @@
         </a>
         <div class="home-room-card__body">
             <div class="home-room-card__head">
-                <a href="{{ route('room', ['slug' => $room->slug]) }}" class="home-room-card__title">{{ $room->title }}</a>
+                <a wire:navigate href="{{ route('room', ['slug' => $room->slug]) }}" class="home-room-card__title">{{ $room->title }}</a>
                 <div class="home-room-card__price">
                     <span class="home-room-card__price-from">Starts from</span>
                     <div class="home-room-card__price-line">
@@ -23,10 +23,10 @@
                 {!! Str::words(strip_tags($room->description ?? ''), 28, '…') !!}
             </p>
             <div class="home-room-card__actions">
-                <a href="{{ route('room', ['slug' => $room->slug]) }}" class="theme-btn btn-style sm-btn border">
+                <a wire:navigate href="{{ route('room', ['slug' => $room->slug]) }}" class="theme-btn btn-style sm-btn border">
                     <span>View Details</span>
                 </a>
-                <a href="{{ route('room', ['slug' => $room->slug]) }}#booking" class="theme-btn btn-style sm-btn fill">
+                <a wire:navigate href="{{ route('room', ['slug' => $room->slug]) }}#booking" class="theme-btn btn-style sm-btn fill">
                     <span>Book Now</span>
                 </a>
             </div>

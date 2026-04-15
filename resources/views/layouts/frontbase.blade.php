@@ -327,7 +327,7 @@
             <div class="row">
                 <div class="main__header__wrapper">
                     <div class="main__logo">
-                        <a href="{{route('home')}}"><img class="logo__class" src="{{ asset('storage/images') . $setting?->logo }}" alt="moonlit" width="90px"></a>
+                        <a wire:navigate href="{{ route('home')}}"><img class="logo__class" src="{{ asset('storage/images') . $setting?->logo }}" alt="moonlit" width="90px"></a>
                     </div>
                     <div class="main__nav">
                         <div class="navigation d-none d-lg-block">
@@ -335,42 +335,42 @@
                                 <ul class="list-unstyled">
 
                                     <li class="navigation__menu--item">
-                                        <a href="{{ route('home') }}" class="navigation__menu--item__link">Home</a>
+                                        <a wire:navigate.hover href="{{ route('home') }}" class="navigation__menu--item__link">Home</a>
                                     </li>
 
                                     <li class="navigation__menu--item has-child">
-                                        <a href="{{ route('about') }}" class="navigation__menu--item__link">About</a>
+                                        <a wire:navigate.hover href="{{ route('about') }}" class="navigation__menu--item__link">About</a>
                                         <ul class="submenu sub__style" role="menu">
-                                            <li role="menuitem"><a href="{{route('about')}}#background">Our History</a></li>
-                                            <li role="menuitem"><a href="{{ route('our-services') }}">Our Services</a></li>
-                                            <li role="menuitem"><a href="{{route('terms')}}">Terms & Conditions</a></li>
-                                            <li role="menuitem"><a href="{{route('updates')}}">Our Team</a></li>
-                                            <li role="menuitem"><a href="{{route('updates')}}">Updates</a></li>
-                                            <li role="menuitem"><a href="{{route('contact')}}">Contacts</a></li>
+                                            <li role="menuitem"><a wire:navigate.hover href="{{ route('about')}}#background">Our History</a></li>
+                                            <li role="menuitem"><a wire:navigate.hover href="{{ route('our-services') }}">Our Services</a></li>
+                                            <li role="menuitem"><a wire:navigate.hover href="{{ route('terms')}}">Terms & Conditions</a></li>
+                                            <li role="menuitem"><a wire:navigate.hover href="{{ route('updates')}}">Our Team</a></li>
+                                            <li role="menuitem"><a wire:navigate.hover href="{{ route('updates')}}">Updates</a></li>
+                                            <li role="menuitem"><a wire:navigate.hover href="{{ route('contact')}}">Contacts</a></li>
                                         </ul>
                                     </li>
 
                                     <li class="navigation__menu--item">
-                                        <a href="{{route('rooms')}}" class="navigation__menu--item__link"> Rooms</a>
+                                        <a wire:navigate.hover href="{{ route('rooms')}}" class="navigation__menu--item__link"> Rooms</a>
                                     </li>
                                     <li class="navigation__menu--item">
-                                        <a href="{{route('dining')}}" class="navigation__menu--item__link">Bar & Restaurant</a>
+                                        <a wire:navigate.hover href="{{ route('dining')}}" class="navigation__menu--item__link">Bar & Restaurant</a>
                                     </li>
 
                                     <li class="navigation__menu--item">
-                                        <a href="{{route('meetings-events')}}" class="navigation__menu--item__link">Meetings & Events</a>
+                                        <a wire:navigate.hover href="{{ route('meetings-events')}}" class="navigation__menu--item__link">Meetings & Events</a>
                                     </li>
 
                                     {{-- <li class="navigation__menu--item">
-                                        <a href="{{route('spa-wellness')}}" class="navigation__menu--item__link">SPA & Wellness</a>
+                                        <a wire:navigate.hover href="{{ route('spa-wellness')}}" class="navigation__menu--item__link">SPA & Wellness</a>
                                     </li> --}}
 
                                     <li class="navigation__menu--item">
-                                        <a href="{{route('gallery')}}" class="navigation__menu--item__link">Gallery</a>
+                                        <a wire:navigate.hover href="{{ route('gallery')}}" class="navigation__menu--item__link">Gallery</a>
                                     </li>
 
                                     <li class="navigation__menu--item">
-                                        <a href="{{route('contact')}}" class="navigation__menu--item__link">Contact</a>
+                                        <a wire:navigate.hover href="{{ route('contact')}}" class="navigation__menu--item__link">Contact</a>
                                     </li>
                                 </ul>
                             </nav>
@@ -381,11 +381,11 @@
                     <div class="main__right d-flex align-items-center gap-2 flex-wrap justify-content-end">
                         @auth
                             @if(auth()->user()->isGuest())
-                                <a href="{{ route('account.dashboard') }}" class="theme-btn btn-style sm-btn outline" style="font-size: 14px; font-weight: 600; padding: 10px 20px;">
+                                <a wire:navigate href="{{ route('account.dashboard') }}" class="theme-btn btn-style sm-btn outline" style="font-size: 14px; font-weight: 600; padding: 10px 20px;">
                                     <span>My account</span>
                                 </a>
                             @elseif(auth()->user()->isAdmin())
-                                <a href="{{ route('content-management.dashboard') }}" class="theme-btn btn-style sm-btn outline" style="font-size: 14px; font-weight: 600; padding: 10px 20px;">
+                                <a wire:navigate href="{{ route('content-management.dashboard') }}" class="theme-btn btn-style sm-btn outline" style="font-size: 14px; font-weight: 600; padding: 10px 20px;">
                                     <span>Admin</span>
                                 </a>
                             @endif
@@ -396,7 +396,7 @@
                                 </button>
                             </form>
                         @endauth
-                        <a href="{{ route('connect') }}" class="theme-btn btn-style sm-btn fill" style="font-size: 16px; font-weight: 600; padding: 12px 30px;">
+                        <a wire:navigate href="{{ route('connect') }}" class="theme-btn btn-style sm-btn fill" style="font-size: 16px; font-weight: 600; padding: 12px 30px;">
                             <span>Book Now</span>
                         </a>
                         <button class="theme-btn btn-style sm-btn fill menu__btn d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
@@ -567,7 +567,7 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                     <div class="offcanvase__top">
                         <div class="offcanvase__logo">
-                            <a href="{{route('home')}}">
+                            <a wire:navigate href="{{ route('home')}}">
                                 <img src="{{ asset('storage/images') . $setting?->logo }}" alt="logo" height="90px">
                             </a>
                         </div>
@@ -612,11 +612,11 @@
                                         <span class="toggle"></span>
                                     </a>
                                     <ul class="slide__menu">
-                                        <li><a href="{{ route('about') }}#background">Background</a></li>
-                                        <li><a href="{{ route('our-services') }}">Our Services</a></li>
-                                        <li><a href="{{ route('terms') }}">Terms & Conditions</a></li>
-                                        <li><a href="{{ route('contact') }}">Contacts</a></li>
-                                        <li><a href="{{ route('updates') }}">Updates</a></li>
+                                        <li><a wire:navigate href="{{ route('about') }}#background">Background</a></li>
+                                        <li><a wire:navigate href="{{ route('our-services') }}">Our Services</a></li>
+                                        <li><a wire:navigate href="{{ route('terms') }}">Terms & Conditions</a></li>
+                                        <li><a wire:navigate href="{{ route('contact') }}">Contacts</a></li>
+                                        <li><a wire:navigate href="{{ route('updates') }}">Updates</a></li>
                                     </ul>
                                 </li>
                                 <li class="slide has__children">
@@ -625,7 +625,7 @@
                                     </a>
                                     <ul class="slide__menu">
                                       @foreach ($rooms as $room)
-                                        <li><a href="{{ route('room',['slug'=>$room->slug]) }}">{{ $room->title }}</a></li>
+                                        <li><a wire:navigate href="{{ route('room',['slug'=>$room->slug]) }}">{{ $room->title }}</a></li>
                                       @endforeach
                                         
                                     </ul>
@@ -636,7 +636,7 @@
                                     </a>
                                     <ul class="slide__menu">
                                       @foreach ($facilities as $facility)
-                                        <li><a href="{{ route('facility',['slug'=>$facility->slug]) }}">{{ $facility->title }}</a></li>
+                                        <li><a wire:navigate href="{{ route('facility',['slug'=>$facility->slug]) }}">{{ $facility->title }}</a></li>
                                       @endforeach
                                         
                                     </ul>
@@ -700,7 +700,7 @@
             <div class="row">
                 <div class="footer__widget__wrapper">
                     <div class="rts__widget footer__brand">
-                        <a href="{{route('home')}}"><img class="footer__logo" src="{{ asset('storage/images') . $setting?->donate }}" alt="{{ $setting?->company ?? 'Hotel' }}" width="120"></a>
+                        <a wire:navigate href="{{ route('home')}}"><img class="footer__logo" src="{{ asset('storage/images') . $setting?->donate }}" alt="{{ $setting?->company ?? 'Hotel' }}" width="120"></a>
                         @php
                             $footerStars = isset($setting?->star_rating) ? (int) $setting->star_rating : 0;
                         @endphp
@@ -723,7 +723,7 @@
                         <span class="widget__title">Hotel Facilities</span>
                         <ul>
                            @foreach ($facilities as $facility)
-                              <li><a href="{{ route('facility',['slug'=>$facility->slug]) }}" aria-label="footer__link">{{ $facility->title }}</a></li>
+                              <li><a wire:navigate href="{{ route('facility',['slug'=>$facility->slug]) }}" aria-label="footer__link">{{ $facility->title }}</a></li>
                            @endforeach
                         </ul>
                     </div>
@@ -863,7 +863,7 @@
                         @endif
 
                         <div class="mt-3 footer__reviews">
-                            <a href="{{ route('reviews') }}" class="footer__reviews-link">
+                            <a wire:navigate href="{{ route('reviews') }}" class="footer__reviews-link">
                                 <span class="footer__reviews-count">{{ $reviewCount }}</span>
                                 <span class="footer__reviews-label">{{ $reviewCount === 1 ? 'Review' : 'Reviews' }}</span>
                                 <span class="footer__reviews-sep">·</span>
@@ -872,7 +872,7 @@
                         </div>
 
                         <div class="footer__book-wrap mt-4">
-                            <a href="{{ route('connect') }}" class="footer__book-cta">
+                            <a wire:navigate href="{{ route('connect') }}" class="footer__book-cta">
                                 <span>Book Now</span>
                                 <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
                             </a>
@@ -996,9 +996,14 @@
     }
     document.addEventListener('livewire:navigated', initWhyChooseJarallax);
 
-    // Home page Swiper carousels
-    document.addEventListener('DOMContentLoaded', function () {
-        if (document.querySelector('.rooms-swiper')) {
+    // Hide preloader immediately on SPA navigation (full HTML still swaps; avoids logo flash)
+    document.addEventListener('livewire:navigating', function () {
+        document.body.classList.add('loaded');
+    });
+
+    function initHomeRoomAndFacilitySwipers() {
+        if (typeof Swiper === 'undefined') return;
+        if (document.querySelector('.rooms-swiper') && !document.querySelector('.rooms-swiper.swiper-initialized')) {
             new Swiper('.rooms-swiper', {
                 slidesPerView: 1,
                 spaceBetween: 24,
@@ -1029,7 +1034,7 @@
             });
         }
 
-        if (document.querySelector('.facilities-swiper')) {
+        if (document.querySelector('.facilities-swiper') && !document.querySelector('.facilities-swiper.swiper-initialized')) {
             new Swiper('.facilities-swiper', {
                 slidesPerView: 1,
                 spaceBetween: 24,
@@ -1059,7 +1064,11 @@
                 },
             });
         }
+    }
 
+    // Home page Swiper carousels — run on first load and after Livewire navigations
+    document.addEventListener('DOMContentLoaded', function () {
+        initHomeRoomAndFacilitySwipers();
         initPageGalleries();
     });
 
@@ -1120,6 +1129,7 @@
     }
 
     document.addEventListener('livewire:navigated', function () {
+        initHomeRoomAndFacilitySwipers();
         initPageGalleries();
     });
 
@@ -1127,26 +1137,6 @@
 
     @livewireScriptConfig
     @livewireScripts
-    <script>
-        document.addEventListener('click', function (e) {
-            var link = e.target.closest('a[href]');
-            if (!link || link.target === '_blank' || link.hasAttribute('download')) return;
-            if (link.closest('[data-no-spa-navigate]')) return;
-            var href = link.getAttribute('href');
-            if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
-            if (href.startsWith('mailto:') || href.startsWith('tel:')) return;
-            try {
-                var url = new URL(link.href, window.location.origin);
-                if (url.origin !== window.location.origin) return;
-                if (url.pathname.startsWith('/livewire/')) return;
-            } catch (err) {
-                return;
-            }
-            if (typeof Livewire === 'undefined' || typeof Livewire.navigate !== 'function') return;
-            e.preventDefault();
-            Livewire.navigate(link.href);
-        });
-    </script>
 
 </body>
 

@@ -38,7 +38,7 @@
                         </div>
                         
                         <div class="text-center home-welcome__cta wow fadeInUp" data-wow-delay=".5s" style="margin-top: 2.25rem;">
-                            <a href="{{ route('about') }}" class="theme-btn btn-style fill no-border" style="display: inline-block; padding: 16px 45px; font-size: 16px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; box-shadow: 0 6px 20px rgba(3, 86, 183, 0.3); transition: all 0.3s ease; border-radius: 8px;">
+                            <a wire:navigate href="{{ route('about') }}" class="theme-btn btn-style fill no-border" style="display: inline-block; padding: 16px 45px; font-size: 16px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; box-shadow: 0 6px 20px rgba(3, 86, 183, 0.3); transition: all 0.3s ease; border-radius: 8px;">
                                 <span>Learn More About Us</span>
                             </a>
                         </div>
@@ -71,7 +71,7 @@
             @foreach($rooms->take(4) as $room)
             <div class="col-12 col-md-6">
                 <article class="home-room-card">
-                    <a href="{{ route('room', ['slug' => $room->slug]) }}" class="home-room-card__media">
+                    <a wire:navigate href="{{ route('room', ['slug' => $room->slug]) }}" class="home-room-card__media">
                         <img src="{{ asset('storage/' . ($room->cover_image ?? 'rooms/default.jpg')) }}"
                             alt="{{ $room->title }}"
                             loading="lazy"
@@ -80,7 +80,7 @@
                     </a>
                     <div class="home-room-card__body">
                         <div class="home-room-card__head">
-                            <a href="{{ route('room', ['slug' => $room->slug]) }}" class="home-room-card__title">{{ $room->title }}</a>
+                            <a wire:navigate href="{{ route('room', ['slug' => $room->slug]) }}" class="home-room-card__title">{{ $room->title }}</a>
                             <div class="home-room-card__price">
                                 <span class="home-room-card__price-from">Starts from</span>
                                 <div class="home-room-card__price-line">
@@ -93,10 +93,10 @@
                             {!! Str::words(strip_tags($room->description ?? ''), 28, '…') !!}
                         </p>
                         <div class="home-room-card__actions">
-                            <a href="{{ route('room', ['slug' => $room->slug]) }}" class="theme-btn btn-style sm-btn border">
+                            <a wire:navigate href="{{ route('room', ['slug' => $room->slug]) }}" class="theme-btn btn-style sm-btn border">
                                 <span>View Details</span>
                             </a>
-                            <a href="{{ route('room', ['slug' => $room->slug]) }}#booking" class="theme-btn btn-style sm-btn fill">
+                            <a wire:navigate href="{{ route('room', ['slug' => $room->slug]) }}#booking" class="theme-btn btn-style sm-btn fill">
                                 <span>Book Now</span>
                             </a>
                         </div>
@@ -108,7 +108,7 @@
 
         <div class="row mt-45 mt-lg-50">
             <div class="col-12 text-center">
-                <a href="{{ route('rooms') }}" class="home-rooms-view-all theme-btn btn-style border">
+                <a wire:navigate href="{{ route('rooms') }}" class="home-rooms-view-all theme-btn btn-style border">
                     <span>View all hotel rooms</span>
                 </a>
             </div>
@@ -168,7 +168,7 @@
             @foreach($homeFacilities as $facility)
             <div class="col-12 col-md-6">
                 <article class="home-room-card">
-                    <a href="{{ route('facility', ['slug' => $facility->slug]) }}" class="home-room-card__media">
+                    <a wire:navigate href="{{ route('facility', ['slug' => $facility->slug]) }}" class="home-room-card__media">
                         <img src="{{ asset('storage/' . ($facility->cover_image ?? 'facilities/default.jpg')) }}"
                             alt="{{ $facility->title }}"
                             loading="lazy"
@@ -177,16 +177,16 @@
                     </a>
                     <div class="home-room-card__body">
                         <div class="home-room-card__head home-room-card__head--title-only">
-                            <a href="{{ route('facility', ['slug' => $facility->slug]) }}" class="home-room-card__title">{{ $facility->title }}</a>
+                            <a wire:navigate href="{{ route('facility', ['slug' => $facility->slug]) }}" class="home-room-card__title">{{ $facility->title }}</a>
                         </div>
                         <p class="home-room-card__excerpt">
                             {!! Str::words(strip_tags($facility->description ?? ''), 28, '…') !!}
                         </p>
                         <div class="home-room-card__actions">
-                            <a href="{{ route('facility', ['slug' => $facility->slug]) }}" class="theme-btn btn-style sm-btn border">
+                            <a wire:navigate href="{{ route('facility', ['slug' => $facility->slug]) }}" class="theme-btn btn-style sm-btn border">
                                 <span>View details</span>
                             </a>
-                            <a href="{{ route('contact') }}" class="theme-btn btn-style sm-btn fill">
+                            <a wire:navigate href="{{ route('contact') }}" class="theme-btn btn-style sm-btn fill">
                                 <span>Contact us</span>
                             </a>
                         </div>
@@ -198,7 +198,7 @@
 
         <div class="row mt-45 mt-lg-50">
             <div class="col-12 text-center">
-                <a href="{{ route('our-services') }}" class="home-rooms-view-all theme-btn btn-style border">
+                <a wire:navigate href="{{ route('our-services') }}" class="home-rooms-view-all theme-btn btn-style border">
                     <span>View all services</span>
                 </a>
             </div>
@@ -229,14 +229,14 @@
             <div class="col-xl-4 col-lg-6 col-md-6 wow fadeInUp" data-wow-delay=".{{ $loop->index * 2 }}s">
                 <div class="blog__card" style="background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
                     <div style="height: 250px; overflow: hidden;">
-                        <a href="{{ route('update', ['slug' => $blog->slug]) }}">
+                        <a wire:navigate href="{{ route('update', ['slug' => $blog->slug]) }}">
                             <img src="{{ asset('storage/images/blogs/' . ($blog->image ?? 'default.jpg')) }}" 
                                  alt="{{ $blog->title }}" 
                                  style="width: 100%; height: 100%; object-fit: cover;">
                         </a>
                     </div>
                     <div style="padding: 25px;">
-                        <a href="{{ route('update', ['slug' => $blog->slug]) }}" class="h5" style="display: block; margin-bottom: 15px; color: #222;">
+                        <a wire:navigate href="{{ route('update', ['slug' => $blog->slug]) }}" class="h5" style="display: block; margin-bottom: 15px; color: #222;">
                             {{ $blog->title }}
                         </a>
                         <p class="font-sm" style="color: #666; margin-bottom: 15px;">
@@ -246,7 +246,7 @@
                             <span class="font-sm" style="color: #999;">
                                 {{ $blog->created_at->format('M d, Y') }}
                             </span>
-                            <a href="{{ route('update', ['slug' => $blog->slug]) }}" class="theme-btn btn-style sm-btn border">
+                            <a wire:navigate href="{{ route('update', ['slug' => $blog->slug]) }}" class="theme-btn btn-style sm-btn border">
                                 <span>Read More</span>
                             </a>
                         </div>
@@ -257,7 +257,7 @@
         </div>
         <div class="row mt-40">
             <div class="col-12 text-center">
-                <a href="{{ route('updates') }}" class="theme-btn btn-style fill">
+                <a wire:navigate href="{{ route('updates') }}" class="theme-btn btn-style fill">
                     <span>View All Updates</span>
                 </a>
             </div>

@@ -56,7 +56,7 @@
                                         <span><img src="assets/images/icon/clock.svg" alt=""> 2 Min Read</span>
                                     </div>
                                     <div class="readmore">
-                                        <a href="{{ route('update',['slug'=>$blog->slug]) }}">Read More</a>
+                                        <a wire:navigate href="{{ route('update',['slug'=>$blog->slug]) }}">Read More</a>
                                     </div>
                                 </div>
                             </div>
@@ -78,12 +78,12 @@
                             @foreach ($rooms as $room)
                                 <div class="single__post">
                                 <div class="single__post__thumb">
-                                    <a href="{{ route('room',['slug'=>$room->slug]) }}">
+                                    <a wire:navigate href="{{ route('room',['slug'=>$room->slug]) }}">
                                         <img src="{{ asset('storage/images/rooms/' .$room->image) }}" height="106" width="110" alt="">
                                     </a>
                                 </div>
                                 <div class="single__post__meta">
-                                    <a href="{{ route('room',['slug'=>$room->slug]) }}" class="font-sm">Top 10 Reasons Guests Love Staying at Bokinn</a>
+                                    <a wire:navigate href="{{ route('room',['slug'=>$room->slug]) }}" class="font-sm">Top 10 Reasons Guests Love Staying at Bokinn</a>
                                     <span>$ {{ $room->price }}{{ $room->price > 200 ? '/Month' : '/Night' }}</span>
                                 </div>
                             </div>

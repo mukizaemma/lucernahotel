@@ -53,20 +53,20 @@
                         <div class="room__card h-100 d-flex flex-column rounded-3 overflow-hidden shadow-sm" style="background: #fff; border: 1px solid #eee;">
                             <div class="room__card__top flex-grow-0">
                                 <div class="room__card__image">
-                                    <a href="{{ route('room', ['slug' => $room->slug]) }}">
+                                    <a wire:navigate href="{{ route('room', ['slug' => $room->slug]) }}">
                                         <img src="{{ asset('storage/' . ($room->cover_image ?? 'rooms/default.jpg')) }}" width="420" height="280" alt="{{ $room->title ?? 'Room' }}" loading="lazy" style="width: 100%; height: 280px; object-fit: cover;">
                                     </a>
                                 </div>
                             </div>
                             <div class="room__card__meta p-4 d-flex flex-column flex-grow-1">
-                                <a href="{{ route('room', ['slug' => $room->slug]) }}" class="room__card__title h5 mb-2 text-dark text-decoration-none">{{ $room->title }}</a>
+                                <a wire:navigate href="{{ route('room', ['slug' => $room->slug]) }}" class="room__card__title h5 mb-2 text-dark text-decoration-none">{{ $room->title }}</a>
                                 <div class="room__price__tag mb-2">
                                     <span class="h5 text-primary">${{ number_format($room->price ?? 0, 0) }}/Night</span>
                                 </div>
                                 <div class="room__card__meta__info mb-3 flex-grow-1">
                                     <p class="font-sm text-muted mb-0">{!! Str::words(strip_tags($room->description ?? ''), 20, '...') !!}</p>
                                 </div>
-                                <a href="{{ route('room', ['slug' => $room->slug]) }}#booking" class="theme-btn btn-style fill align-self-start">
+                                <a wire:navigate href="{{ route('room', ['slug' => $room->slug]) }}#booking" class="theme-btn btn-style fill align-self-start">
                                     <span>View details &amp; Book</span>
                                 </a>
                             </div>
@@ -86,20 +86,20 @@
                         <div class="room__card h-100 d-flex flex-column rounded-3 overflow-hidden shadow-sm" style="background: #fff; border: 1px solid #eee;">
                             <div class="room__card__top flex-grow-0">
                                 <div class="room__card__image">
-                                    <a href="{{ route('room', ['slug' => $room->slug]) }}">
+                                    <a wire:navigate href="{{ route('room', ['slug' => $room->slug]) }}">
                                         <img src="{{ asset('storage/' . ($room->cover_image ?? 'rooms/default.jpg')) }}" width="420" height="280" alt="{{ $room->title ?? 'Apartment' }}" loading="lazy" style="width: 100%; height: 280px; object-fit: cover;">
                                     </a>
                                 </div>
                             </div>
                             <div class="room__card__meta p-4 d-flex flex-column flex-grow-1">
-                                <a href="{{ route('room', ['slug' => $room->slug]) }}" class="room__card__title h5 mb-2 text-dark text-decoration-none">{{ $room->title }}</a>
+                                <a wire:navigate href="{{ route('room', ['slug' => $room->slug]) }}" class="room__card__title h5 mb-2 text-dark text-decoration-none">{{ $room->title }}</a>
                                 <div class="room__price__tag mb-2">
                                     <span class="h5 text-primary">${{ number_format($room->price ?? 0, 0) }}/Night</span>
                                 </div>
                                 <div class="room__card__meta__info mb-3 flex-grow-1">
                                     <p class="font-sm text-muted mb-0">{!! Str::words(strip_tags($room->description ?? ''), 20, '...') !!}</p>
                                 </div>
-                                <a href="{{ route('room', ['slug' => $room->slug]) }}#booking" class="theme-btn btn-style fill align-self-start">
+                                <a wire:navigate href="{{ route('room', ['slug' => $room->slug]) }}#booking" class="theme-btn btn-style fill align-self-start">
                                     <span>View details &amp; Book</span>
                                 </a>
                             </div>
