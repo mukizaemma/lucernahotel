@@ -33,6 +33,15 @@ class Setting extends Model
         'quote',
         'google_map_embed',
         'star_rating',
+        'booking_com_url',
+        'tripadvisor_location_id',
+        'tripadvisor_hotel_url',
+        'tripadvisor_write_review_url',
+        'google_place_url',
+        'google_maps_embed_url',
+        'whatsapp_e164',
+        'whatsapp_default_message',
+        'channel_contact_email',
     ];
 
     protected $casts = [

@@ -186,6 +186,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/setting',[App\Http\Controllers\SettingsController::class,'setting'])->name('setting');
     Route::post('/saveSetting',[App\Http\Controllers\SettingsController::class,'saveSetting'])->name('saveSetting');
     Route::post('/setting/footer-delivered-by',[App\Http\Controllers\SettingsController::class,'updateFooterDeliveredBy'])->name('setting.footer-delivered-by.update');
+    Route::post('/setting/channel-links', [App\Http\Controllers\SettingsController::class, 'saveChannelLinks'])->name('setting.channel-links.update');
     Route::post('/setting/keywords',[App\Http\Controllers\SettingsController::class,'updateKeywords'])->name('setting.keywords.update');
     
     Route::get('/homePage',[App\Http\Controllers\SettingsController::class,'homePage'])->name('homePage');
@@ -344,7 +345,7 @@ Route::get('/tour/{slug}', TourShowPage::class)->name('tour');
 Route::get('/gallery', GalleryPage::class)->name('gallery');
 Route::get('/contact', ContactPage::class)->name('contact');
 Route::get('/promotions', PromotionsPage::class)->name('promotions');
-Route::post('/book', [App\Http\Controllers\HomeController::class, 'bookNow'])->name('bookNow');
+// Public booking/enquiry forms removed — use Booking.com + WhatsApp (see config/hotel_channels.php)
 Route::get('/apartment', ApartmentLandingPage::class)->name('apartment');
 Route::get('/guesthouse', GuesthousePage::class)->name('guesthouse');
 Route::get('/facilities', FacilitiesPage::class)->name('facilities');
@@ -360,7 +361,6 @@ Route::get('/terms-and-conditions', TermsPage::class)->name('terms');
 
 Route::get('/reviews', ReviewsPage::class)->name('reviews');
 Route::get('/reviews/{id}', ReviewShowPage::class)->name('review');
-Route::post('/reviews', [App\Http\Controllers\HomeController::class, 'storeReview'])->name('reviews.store');
 
 Route::get('/admin/login', [App\Http\Controllers\HomeController::class, 'adminLogin'])->name('adminLogin');
 Route::get('/user/account', [App\Http\Controllers\HomeController::class, 'newAccount'])->name('newAccount');
@@ -384,13 +384,7 @@ Route::get('/getSignup', [App\Http\Controllers\HomeController::class, 'getSignup
 Route::post('/Signup', [App\Http\Controllers\HomeController::class, 'signup'])->name('signup');
 Route::get('/Signin', [App\Http\Controllers\HomeController::class, 'signin'])->name('signin');
 Route::get('/logouts', [App\Http\Controllers\HomeController::class, 'logouts'])->name('logouts');
-Route::post('/subscribe', [App\Http\Controllers\HomeController::class, 'subscribe'])->name('subscribe');
-
-Route::post('/sendMessage', [App\Http\Controllers\HomeController::class, 'sendMessage'])->name('sendMessage');
-Route::post('/submit-proposal', [App\Http\Controllers\HomeController::class, 'submitProposal'])->name('submitProposal');
-Route::post('/sendComment', [App\Http\Controllers\HomeController::class, 'sendComment'])->name('sendComment');
 Route::post('/registerNow', [App\Http\Controllers\HomeController::class, 'registerNow'])->name('registerNow');
-Route::post('/testimony', [App\Http\Controllers\HomeController::class, 'testimony'])->name('testimony');
 
 // Email Verification Routes (Public)
 Route::get('/verify-email/{token}', [App\Http\Controllers\Auth\EmailVerificationController::class, 'verify'])->name('verify.email');

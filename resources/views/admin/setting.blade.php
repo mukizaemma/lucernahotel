@@ -25,6 +25,9 @@
                 <a class="nav-link active" data-bs-toggle="tab" href="#contacts">Contacts & Logo</a>
             </li>
             <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#channel-links">Booking &amp; review links</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" data-bs-toggle="tab" href="#about">About Hotel</a>
             </li>
             <li class="nav-item">
@@ -163,6 +166,77 @@
                             <div class="pt-2">
                                 <button type="submit" class="btn btn-primary">Save Contacts & Logo</button>
                             </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Tab: Booking.com, TripAdvisor, Google, WhatsApp (overrides .env defaults when filled) --}}
+            <div id="channel-links" class="tab-pane fade">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-1">Booking &amp; review links</h5>
+                        <p class="text-muted small mb-0">
+                            Values saved here override <code>config/hotel_channels.php</code> (from <code>.env</code>) on the public site.
+                            Leave a field empty to use the default from the server environment.
+                        </p>
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ route('setting.channel-links.update') }}" method="POST">
+                            @csrf
+                            <fieldset class="mb-4">
+                                <legend class="h6 text-secondary border-bottom pb-2 mb-3">Booking.com</legend>
+                                <label class="form-label" for="booking_com_url">Booking.com URL</label>
+                                <input type="url" class="form-control font-monospace small" id="booking_com_url" name="booking_com_url" value="{{ old('booking_com_url', $data->booking_com_url ?? '') }}" placeholder="https://www.booking.com/hotel/...">
+                            </fieldset>
+                            <fieldset class="mb-4">
+                                <legend class="h6 text-secondary border-bottom pb-2 mb-3">TripAdvisor</legend>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label" for="tripadvisor_location_id">Location ID (widget)</label>
+                                        <input type="text" class="form-control" id="tripadvisor_location_id" name="tripadvisor_location_id" value="{{ old('tripadvisor_location_id', $data->tripadvisor_location_id ?? '') }}" placeholder="28135123" maxlength="32">
+                                    </div>
+                                    <div class="col-md-8">
+                                        <label class="form-label" for="tripadvisor_hotel_url">Hotel reviews page URL</label>
+                                        <input type="url" class="form-control font-monospace small" id="tripadvisor_hotel_url" name="tripadvisor_hotel_url" value="{{ old('tripadvisor_hotel_url', $data->tripadvisor_hotel_url ?? '') }}">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label" for="tripadvisor_write_review_url">Write review URL</label>
+                                        <input type="url" class="form-control font-monospace small" id="tripadvisor_write_review_url" name="tripadvisor_write_review_url" value="{{ old('tripadvisor_write_review_url', $data->tripadvisor_write_review_url ?? '') }}">
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <fieldset class="mb-4">
+                                <legend class="h6 text-secondary border-bottom pb-2 mb-3">Google</legend>
+                                <div class="mb-3">
+                                    <label class="form-label" for="google_place_url">Google Maps / Business place URL</label>
+                                    <input type="url" class="form-control font-monospace small" id="google_place_url" name="google_place_url" value="{{ old('google_place_url', $data->google_place_url ?? '') }}">
+                                </div>
+                                <div class="mb-0">
+                                    <label class="form-label" for="google_maps_embed_url">Map embed URL (reviews page)</label>
+                                    <input type="url" class="form-control font-monospace small" id="google_maps_embed_url" name="google_maps_embed_url" value="{{ old('google_maps_embed_url', $data->google_maps_embed_url ?? '') }}" placeholder="https://maps.google.com/maps?q=...&amp;output=embed">
+                                    <p class="text-muted small mb-0 mt-1">Simple embed without API key, e.g. <code>https://maps.google.com/maps?q=lat,lng&amp;z=16&amp;output=embed</code></p>
+                                </div>
+                            </fieldset>
+                            <fieldset class="mb-4">
+                                <legend class="h6 text-secondary border-bottom pb-2 mb-3">WhatsApp &amp; email (CTAs)</legend>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="whatsapp_e164">WhatsApp number</label>
+                                        <input type="text" class="form-control" id="whatsapp_e164" name="whatsapp_e164" value="{{ old('whatsapp_e164', $data->whatsapp_e164 ?? '') }}" placeholder="250794191115" maxlength="32">
+                                        <p class="text-muted small mb-0 mt-1">Digits only, with country code (no +).</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="channel_contact_email">Contact email for mailto links</label>
+                                        <input type="email" class="form-control" id="channel_contact_email" name="channel_contact_email" value="{{ old('channel_contact_email', $data->channel_contact_email ?? '') }}" placeholder="Leave empty to use main Email above">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label" for="whatsapp_default_message">Default WhatsApp message prefix</label>
+                                        <textarea class="form-control" id="whatsapp_default_message" name="whatsapp_default_message" rows="2" maxlength="2000">{{ old('whatsapp_default_message', $data->whatsapp_default_message ?? '') }}</textarea>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <button type="submit" class="btn btn-primary">Save booking &amp; review links</button>
                         </form>
                     </div>
                 </div>

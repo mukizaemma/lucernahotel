@@ -116,19 +116,15 @@
                         <h3>Newsletter Subscribe</h3>
                     </div>
                     <div class="newsletter-form mb--30">
-                        <form action="{{ route('subscribe') }}" method="POST"
-                        enctype="multipart/form-data" class="contact-form">
-                        @csrf
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <input type="email" class="form-control" placeholder="Enter Your Email" name="email">
-                                </div>
-                                <div class="col-md-6">
-                                    <input type="text" class="form-control" placeholder="Enter Your Names" name="names">
-                                </div>
-                            </div>
-                            <button class="btn btn--primary w-100">Subscribe</button>
-                        </form>
+                        @php
+                            $hc = \App\Support\HotelChannels::all();
+                            $wad = preg_replace('/\D+/', '', (string) ($hc['whatsapp_e164'] ?? ''));
+                            $wau = $wad !== '' ? 'https://wa.me/'.$wad.'?text='.rawurlencode('Hello Lucerna Kabgayi Hotel') : '#';
+                            $em = $hc['public_email'] ?? '';
+                        @endphp
+                        <p class="small mb-2">Contact us on WhatsApp or email — no newsletter form.</p>
+                        <a href="{{ $wau }}" class="btn btn--primary w-100 mb-2" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+                        <a href="mailto:{{ $em }}" class="btn btn-outline-primary w-100">{{ $em }}</a>
                     </div>
                     <div class="social-block">
                         <h3 class="title">STAY CONNECTED</h3>

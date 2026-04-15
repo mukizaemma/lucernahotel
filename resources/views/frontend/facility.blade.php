@@ -108,42 +108,11 @@
                 <!-- Right column: booking form -->
                 <div class="col-lg-5" id="booking">
                     <div class="rts__booking__form has__background" style="padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
-                        <h3 class="mb-30 text-center">Book This Facility</h3>
-                        <form action="{{ route('bookNow') }}" method="POST" id="facilityBookingForm">
-                            @csrf
-                            <input type="hidden" name="facility_id" value="{{ $facility->id }}">
-                            <div class="row g-20">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Date <span class="text-danger">*</span></label>
-                                    <input type="date" name="reservation_date" class="form-control" required min="{{ date('Y-m-d') }}">
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Number of People <span class="text-danger">*</span></label>
-                                    <input type="number" name="guests" class="form-control" min="1" value="1" required>
-                                </div>
-                                <div class="col-md-12 mb-3">
-                                    <label class="form-label">Your Name <span class="text-danger">*</span></label>
-                                    <input type="text" name="names" class="form-control" required>
-                                </div>
-                                <div class="col-md-12 mb-3">
-                                    <label class="form-label">Email <span class="text-danger">*</span></label>
-                                    <input type="email" name="email" class="form-control" required>
-                                </div>
-                                <div class="col-md-12 mb-3">
-                                    <label class="form-label">Phone <span class="text-danger">*</span></label>
-                                    <input type="text" name="phone" class="form-control" required>
-                                </div>
-                                <div class="col-12 mb-3">
-                                    <label class="form-label">Special Requests</label>
-                                    <textarea name="message" class="form-control" rows="3" placeholder="Any special requests or notes..."></textarea>
-                                </div>
-                                <div class="col-12 text-center">
-                                    <button type="submit" class="theme-btn btn-style fill" style="width: 100%; padding: 15px; font-size: 18px;">
-                                        <span>Submit Booking Request</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
+                        <h3 class="mb-20 text-center">Book or enquire</h3>
+                        <p class="text-muted small text-center mb-4">
+                            Overnight stays: use <strong>Booking.com</strong>. For this facility or event space, message us on WhatsApp or email.
+                        </p>
+                        @include('frontend.includes.hotel-booking-channels', ['contextLabel' => ' Facility: '.$facility->title])
                     </div>
                 </div>
             </div>

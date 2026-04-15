@@ -1,40 +1,25 @@
+@php
+    $c = \App\Support\HotelChannels::all();
+    $waDigits = preg_replace('/\D+/', '', (string) ($c['whatsapp_e164'] ?? ''));
+    $waUrl = $waDigits !== '' ? 'https://wa.me/'.$waDigits.'?text='.rawurlencode('Hello — I would like updates from Lucerna Kabgayi Hotel.') : '#';
+    $email = $c['public_email'] ?? 'info@lucernakabgayihotel.com';
+@endphp
 <div class="tp-cta__area mt-10" id="subscribe">
     <div class="tp-cta__bg wow tpfadeUp" data-wow-duration=".9s" data-wow-delay=".3s" data-background="assets/img/cta/cta-bg-3.jpg">
         <div class="container">
-            <div class="row align-items-center">
-                <h2 class="text-center"  style="color: #ad3303">Subscribe</h2>
-                {{-- <p class="text-center"  style="color: #D9A409">
-                    Subscribe to keep updated
-                </p> --}}
-                
-                <div class="container">
-                    <form class="form" action="{{ route('subscribe') }}" method="POST"
-                    enctype="multipart/form-data">
-                    @csrf
-                        <div class="row">
-                            <div class="col">
-                                <input type="text" class="form-control mb-1 mr-3" placeholder="First Name" name="fName" required="">
-                            </div>
-                            <div class="col">
-                                <input type="text" class="form-control mb-1 mr-3" placeholder="Last Name" name="lName">
-                            </div>
-                            <div class="col">
-                                <input type="email" class="form-control mb-1 mr-3" placeholder="Your Email" name="email" required="">
-                                @error('email')
-                                    <div class="text-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col">
-                                <button class="tp-btn theme-2-bg wow tpfadeUp" type="submit" >Subscribe</button>
-                            </div>
-                        </div>
-                    </form>
-                    
-                    
-                    
+            <div class="row align-items-center justify-content-center text-center py-4">
+                <div class="col-lg-8">
+                    <h2 class="mb-2" style="color: #ad3303">Stay in touch</h2>
+                    <p class="mb-4 text-muted">We don’t use a mailing list form here. Message us on WhatsApp or email for news and offers.</p>
+                    <div class="d-flex flex-wrap justify-content-center gap-3">
+                        <a href="{{ $waUrl }}" class="btn text-white px-4" style="background:#25D366;" target="_blank" rel="noopener noreferrer" data-no-spa-navigate>
+                            <i class="fa-brands fa-whatsapp me-2"></i>WhatsApp
+                        </a>
+                        <a href="mailto:{{ $email }}" class="btn btn-outline-light px-4" style="border-color:#ad3303;color:#ad3303;" data-no-spa-navigate>
+                            <i class="fa-solid fa-envelope me-2"></i>{{ $email }}
+                        </a>
+                    </div>
                 </div>
-                
-                
             </div>
         </div>
     </div>

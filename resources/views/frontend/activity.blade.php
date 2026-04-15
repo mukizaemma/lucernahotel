@@ -69,56 +69,11 @@
             <div class="row">
                 <div class="col-lg-8 mx-auto">
                     <div class="rts__booking__form has__background" style="padding: 40px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
-                        <h3 class="mb-30 text-center">Book This Tour Activity</h3>
-                        @if(session('success'))
-                            <div class="alert alert-success mb-4">{{ session('success') }}</div>
-                        @endif
-                        @if(session('error'))
-                            <div class="alert alert-danger mb-4">{{ session('error') }}</div>
-                        @endif
-                        <form action="{{ route('bookNow') }}" method="POST" id="activityBookingForm">
-                            @csrf
-                            <input type="hidden" name="tour_activity_id" value="{{ $activity->id }}">
-                            <div class="row g-20">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Check In <span class="text-danger">*</span></label>
-                                    <input type="date" name="checkin" class="form-control" required min="{{ date('Y-m-d') }}">
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Check Out <span class="text-danger">*</span></label>
-                                    <input type="date" name="checkout" class="form-control" required min="{{ date('Y-m-d') }}">
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Adults <span class="text-danger">*</span></label>
-                                    <input type="number" name="adults" class="form-control" min="1" value="1" required>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Children</label>
-                                    <input type="number" name="children" class="form-control" min="0" value="0">
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Your Name <span class="text-danger">*</span></label>
-                                    <input type="text" name="names" class="form-control" required>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Email <span class="text-danger">*</span></label>
-                                    <input type="email" name="email" class="form-control" required>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Phone <span class="text-danger">*</span></label>
-                                    <input type="text" name="phone" class="form-control" required>
-                                </div>
-                                <div class="col-12 mb-3">
-                                    <label class="form-label">Special Requests</label>
-                                    <textarea name="message" class="form-control" rows="3" placeholder="Any special requests or notes..."></textarea>
-                                </div>
-                                <div class="col-12 text-center">
-                                    <button type="submit" class="theme-btn btn-style fill" style="width: 100%; padding: 15px; font-size: 18px;">
-                                        <span>Submit Booking Request</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
+                        <h3 class="mb-20 text-center">Book or enquire</h3>
+                        <p class="text-muted small text-center mb-4">
+                            Room nights: <strong>Booking.com</strong>. For this activity, contact us on WhatsApp or email.
+                        </p>
+                        @include('frontend.includes.hotel-booking-channels', ['contextLabel' => ' Activity: '.$activity->title])
                     </div>
                 </div>
             </div>

@@ -8,6 +8,7 @@ use App\Models\About;
 use App\Models\Aboutus;
 use App\Models\Setting;
 use App\Models\Getinvolved;
+use App\Support\HotelChannels;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
@@ -133,6 +134,49 @@ class SettingsController extends Controller
         $setting->save();
 
         return redirect()->back()->with('success', 'Footer “Delivered by” settings updated successfully.');
+    }
+
+    /**
+     * Booking.com, TripAdvisor, Google, WhatsApp — overrides config/hotel_channels.php (.env defaults).
+     */
+    public function saveChannelLinks(Request $request)
+    {
+        $validated = $request->validate([
+            'booking_com_url' => 'nullable|string|max:4000',
+            'tripadvisor_location_id' => 'nullable|string|max:32',
+            'tripadvisor_hotel_url' => 'nullable|string|max:4000',
+            'tripadvisor_write_review_url' => 'nullable|string|max:4000',
+            'google_place_url' => 'nullable|string|max:4000',
+            'google_maps_embed_url' => 'nullable|string|max:4000',
+            'whatsapp_e164' => 'nullable|string|max:32',
+            'whatsapp_default_message' => 'nullable|string|max:2000',
+            'channel_contact_email' => 'nullable|email|max:255',
+        ]);
+
+        $setting = Setting::first();
+        if (! $setting) {
+            return redirect()->back()->with('error', 'No settings record found.');
+        }
+
+        foreach ([
+            'booking_com_url',
+            'tripadvisor_location_id',
+            'tripadvisor_hotel_url',
+            'tripadvisor_write_review_url',
+            'google_place_url',
+            'google_maps_embed_url',
+            'whatsapp_e164',
+            'whatsapp_default_message',
+            'channel_contact_email',
+        ] as $key) {
+            $v = $validated[$key] ?? null;
+            $setting->{$key} = is_string($v) && trim($v) === '' ? null : $v;
+        }
+
+        $setting->save();
+        HotelChannels::forgetCache();
+
+        return redirect()->back()->with('success', 'Booking & review links updated successfully.');
     }
 
     /**

@@ -1,121 +1,122 @@
 <div class="public-livewire-page">
 
+@php
+    $c = \App\Support\HotelChannels::all();
+    $taWrite = $c['tripadvisor_write_review_url'] ?? '#';
+    $googlePlace = $c['google_place_url'] ?? '#';
+    $taHotel = $c['tripadvisor_hotel_url'] ?? '#';
+    $embedG = $c['google_maps_embed_url'] ?? '';
+@endphp
+
 @include('frontend.includes.page-hero-banner', [
-    'defaultCaption' => 'Guest Reviews',
-    'defaultDescription' => 'Read what our guests have to say about their stay',
+    'defaultCaption' => 'Guest reviews',
+    'defaultDescription' => 'Read verified feedback on TripAdvisor and Google — and share your experience where it counts',
 ])
 
-<!-- Reviews Section -->
-<div class="rts__section section__padding">
+<!-- Intro + CTAs -->
+<div class="rts__section section__padding" style="background: linear-gradient(180deg, #f8fafc 0%, #fff 100%);">
     <div class="container">
-        <div class="row mb-40">
-            <div class="col-12 text-center">
-                <h2>All Reviews ({{ $reviewCount }})</h2>
-                <a href="{{ route('reviews') }}#add-review" class="theme-btn btn-style fill mt-3">
-                    <span>Add Your Review</span>
-                </a>
-            </div>
-        </div>
-        
-        <div class="row g-30">
-            @forelse($reviews as $review)
-            <div class="col-lg-6 wow fadeInUp">
-                <div class="review__card" style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); height: 100%;">
-                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
-                        <div>
-                            <h5 style="margin-bottom: 5px;">{{ $review->names }}</h5>
-                            <div style="display: flex; gap: 5px; margin-bottom: 10px;">
-                                @for($i = 1; $i <= 5; $i++)
-                                    <i class="fas fa-star {{ $i <= $review->rating ? 'text-warning' : 'text-muted' }}"></i>
-                                @endfor
-                            </div>
-                        </div>
-                        <span class="font-sm" style="color: #999;">{{ $review->created_at->format('M d, Y') }}</span>
-                    </div>
-                    <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">
-                        {{ $review->testimony }}
-                    </p>
-                    <a href="{{ route('review', ['id' => $review->id]) }}" class="theme-btn btn-style sm-btn border">
-                        <span>Read Full Review</span>
+        <div class="row justify-content-center text-center mb-40">
+            <div class="col-lg-9">
+                <h2 class="mb-3">Reviews you can trust</h2>
+                <p class="font-lg text-muted mb-4">
+                    We invite guests to leave feedback on <strong>TripAdvisor</strong> and <strong>Google</strong> so reviews stay transparent and tied to those platforms.
+                </p>
+                <div class="d-flex flex-wrap justify-content-center gap-3 mb-2">
+                    <a href="{{ $taWrite }}" class="theme-btn btn-style fill" target="_blank" rel="noopener noreferrer" data-no-spa-navigate>
+                        <i class="fa-solid fa-pen-to-square me-2" aria-hidden="true"></i>
+                        <span>Review on TripAdvisor</span>
                     </a>
-                </div>
-            </div>
-            @empty
-            <div class="col-12 text-center">
-                <p class="font-lg">No reviews yet. Be the first to review!</p>
-            </div>
-            @endforelse
-        </div>
-
-        <!-- Pagination -->
-        @if($reviews->hasPages())
-        <div class="row mt-40">
-            <div class="col-12">
-                {{ $reviews->links('vendor.pagination.bootstrap-5-custom') }}
-            </div>
-        </div>
-        @endif
-
-        <!-- Add Review Form -->
-        <div class="row mt-60" id="add-review">
-            <div class="col-lg-8 mx-auto">
-                <div class="home-cta__panel site-form-panel" style="background: #f9f9f9; padding: 40px; border-radius: 12px;">
-                    <p class="home-cta__form-note mb-20 text-center">Fields marked <span class="home-cta__req" aria-hidden="true">*</span> are required.</p>
-                    <h3 class="text-center mb-30 section__title section__title--compact">Share Your Experience</h3>
-                    <form action="{{ route('reviews.store') }}" method="POST" class="home-cta__form site-form">
-                        @csrf
-                        <div class="row g-20">
-                            <div class="col-md-6 mb-3">
-                                <label for="review-names" class="home-cta__label">Your Name <span class="home-cta__req">*</span></label>
-                                <div class="home-cta__field">
-                                    <input type="text" name="names" id="review-names" class="form-control home-cta__input" required autocomplete="name">
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="review-email" class="home-cta__label">Your Email <span class="home-cta__req">*</span></label>
-                                <div class="home-cta__field">
-                                    <input type="email" name="email" id="review-email" class="form-control home-cta__input" required autocomplete="email">
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="review-rating" class="home-cta__label">Rating <span class="home-cta__req">*</span></label>
-                                <div class="home-cta__field">
-                                    <select name="rating" id="review-rating" class="form-control home-cta__input home-cta__input--select" required>
-                                        <option value="">Select Rating</option>
-                                        <option value="5">5 - Excellent</option>
-                                        <option value="4">4 - Very Good</option>
-                                        <option value="3">3 - Good</option>
-                                        <option value="2">2 - Fair</option>
-                                        <option value="1">1 - Poor</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="review-website" class="home-cta__label">Website <span class="home-cta__label-opt">(optional)</span></label>
-                                <div class="home-cta__field">
-                                    <input type="url" name="website" id="review-website" class="form-control home-cta__input" placeholder="https://">
-                                </div>
-                            </div>
-                            <div class="col-12 mb-3">
-                                <label for="review-testimony" class="home-cta__label">Your Review <span class="home-cta__req">*</span></label>
-                                <div class="home-cta__field">
-                                    <textarea name="testimony" id="review-testimony" class="form-control home-cta__input home-cta__input--textarea" rows="5" required placeholder="Share your experience..."></textarea>
-                                </div>
-                            </div>
-                            <div class="col-12 text-center">
-                                <button type="submit" class="theme-btn btn-style fill home-cta__submit">
-                                    <span>Submit Review <i class="fa-solid fa-arrow-right home-cta__submit-icon ms-2" aria-hidden="true"></i></span>
-                                </button>
-                                <p class="font-sm mt-3 home-cta__form-note" style="color: #64748b;">
-                                    Your review will be published after admin approval.
-                                </p>
-                            </div>
-                        </div>
-                    </form>
+                    <a href="{{ $googlePlace }}" class="theme-btn btn-style border" style="border-width:2px;" target="_blank" rel="noopener noreferrer" data-no-spa-navigate>
+                        <i class="fa-brands fa-google me-2" aria-hidden="true"></i>
+                        <span>Review on Google</span>
+                    </a>
+                    <a href="{{ $c['booking_com_url'] ?? '#' }}" class="theme-btn btn-style sm-btn border" target="_blank" rel="noopener noreferrer" data-no-spa-navigate>
+                        <i class="fa-solid fa-bed me-2" aria-hidden="true"></i>
+                        <span>Book on Booking.com</span>
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<!-- Reviews End -->
+
+<!-- Row 1: TripAdvisor widget + Google map embed -->
+<div class="rts__section section__padding pt-0">
+    <div class="container">
+        <div class="row g-4 align-items-stretch">
+            <div class="col-lg-6">
+                <div class="reviews-embed-card h-100 p-3 p-lg-4 rounded-3 bg-white shadow-sm border">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                        <h3 class="h5 mb-0">TripAdvisor</h3>
+                        <a href="{{ $taHotel }}" class="small text-primary" target="_blank" rel="noopener noreferrer">See all reviews →</a>
+                    </div>
+                    <div class="reviews-embed-card__body" style="min-height: 320px;">
+                        <div id="TA_selfserveprop482" class="TA_selfserveprop">
+                            <ul class="TA_links TA482" id="TA482"></ul>
+                        </div>
+                        <script async src="https://www.jscache.com/wejs?wtype=selfserveprop&amp;uniq=482&amp;locationId={{ $c['tripadvisor_location_id'] ?? '28135123' }}&amp;lang=en&amp;rating=true&amp;nreviews=5&amp;reviews=5&amp;writereviewlink=true&amp;popIdx=true&amp;iswide=true&amp;border=true&amp;display_version=2"></script>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="reviews-embed-card h-100 p-3 p-lg-4 rounded-3 bg-white shadow-sm border">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                        <h3 class="h5 mb-0">Google</h3>
+                        <a href="{{ $googlePlace }}" class="small text-primary" target="_blank" rel="noopener noreferrer">Open in Google Maps →</a>
+                    </div>
+                    <div class="ratio ratio-4x3 rounded-2 overflow-hidden border">
+                        @if(filled($embedG))
+                            <iframe
+                                title="Lucerna Kabgayi Hotel on Google Maps"
+                                src="{{ $embedG }}"
+                                style="border:0;"
+                                allowfullscreen=""
+                                loading="lazy"
+                                referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        @else
+                            <div class="d-flex align-items-center justify-content-center bg-light text-muted small p-4">
+                                Set <code>HOTEL_GOOGLE_MAPS_EMBED_URL</code> in <code>.env</code> for a map preview.
+                            </div>
+                        @endif
+                    </div>
+                    <p class="small text-muted mt-3 mb-0">
+                        On Google Maps, open the hotel and tap <strong>Reviews</strong> to read or write a review.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Row 2: Repeat CTAs (strong visual) -->
+<div class="rts__section section__padding pt-0 pb-5">
+    <div class="container">
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="text-center p-4 rounded-3 border" style="background:#f0fdf4;border-color:#bbf7d0!important;">
+                    <i class="fa-brands fa-tripadvisor fa-2x mb-3" style="color:#00af87;" aria-hidden="true"></i>
+                    <h3 class="h5">Share on TripAdvisor</h3>
+                    <p class="small text-muted">Help future travellers by reviewing your stay on TripAdvisor.</p>
+                    <a href="{{ $taWrite }}" class="theme-btn btn-style fill w-100 mt-2" target="_blank" rel="noopener noreferrer" data-no-spa-navigate>Write a review</a>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-5">
+                <div class="text-center p-4 rounded-3 border" style="background:#eff6ff;border-color:#bfdbfe!important;">
+                    <i class="fa-brands fa-google fa-2x mb-3 text-primary" aria-hidden="true"></i>
+                    <h3 class="h5">Share on Google</h3>
+                    <p class="small text-muted">Reviews on Google help local visibility and trust.</p>
+                    <a href="{{ $googlePlace }}" class="theme-btn btn-style fill w-100 mt-2" target="_blank" rel="noopener noreferrer" data-no-spa-navigate>Review on Google</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center mt-5">
+            <div class="col-lg-8 text-center">
+                @include('frontend.includes.hotel-booking-channels', ['contextLabel' => ' (reviews page)'])
+            </div>
+        </div>
+    </div>
+</div>
+
 </div>

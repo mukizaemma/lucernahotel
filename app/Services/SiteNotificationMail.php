@@ -41,7 +41,11 @@ class SiteNotificationMail
 
             return true;
         } catch (\Throwable $e) {
-            Log::error('Site notification mail to team failed', ['exception' => $e]);
+            Log::error('Site notification mail to team failed', [
+                'message' => $e->getMessage(),
+                'mailer' => config('mail.default'),
+                'exception' => $e,
+            ]);
 
             return false;
         }
@@ -58,7 +62,12 @@ class SiteNotificationMail
 
             return true;
         } catch (\Throwable $e) {
-            Log::error('Site notification mail to guest failed', ['exception' => $e, 'email' => $email]);
+            Log::error('Site notification mail to guest failed', [
+                'message' => $e->getMessage(),
+                'mailer' => config('mail.default'),
+                'email' => $email,
+                'exception' => $e,
+            ]);
 
             return false;
         }

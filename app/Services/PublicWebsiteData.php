@@ -412,7 +412,6 @@ class PublicWebsiteData
             'about' => $about,
             'hotelContact' => $hotelContact,
             'pageHero' => $pageHero,
-            'rooms' => Room::where('status', 'Active')->oldest()->get(),
         ];
     }
 
@@ -426,21 +425,16 @@ class PublicWebsiteData
             'setting' => $setting,
             'about' => $about,
             'pageHero' => $pageHero,
-            'rooms' => Room::where('status', 'Active')->oldest()->get(),
         ];
     }
 
     public static function reviews(): array
     {
-        $reviews = Review::approved()->latest()->paginate(10);
-        $reviewCount = Review::approved()->count();
         $setting = Setting::first();
         $about = About::first();
         $pageHero = PageHero::getBySlug('reviews');
 
         return [
-            'reviews' => $reviews,
-            'reviewCount' => $reviewCount,
             'setting' => $setting,
             'about' => $about,
             'pageHero' => $pageHero,
