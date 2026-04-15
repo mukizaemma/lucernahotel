@@ -36,9 +36,9 @@
                 </a>
             </div>
         </div>
-        <p class="small text-muted mb-0 text-center">
+        {{-- <p class="small text-muted mb-0 text-center">
             <a href="{{ $bookingUrl }}" target="_blank" rel="noopener noreferrer">View availability &amp; rates</a>
             · {{ $email }}
-        </p>
+        </p> --}}
     </div>
 </div>

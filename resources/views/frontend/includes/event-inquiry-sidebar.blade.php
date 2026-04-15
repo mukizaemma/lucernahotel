@@ -6,7 +6,8 @@
     $pf = $formPrefix ?? 'inquiry';
     $icon = $iconClass ?? 'fa-solid fa-calendar-check';
     $source = $proposalSource ?? 'meetings';
-    $label = trim(($cardTitle ?? 'Enquiry').($meetingRoomLabel ? ' — '.$meetingRoomLabel : '').' ('.$source.')');
+    $meetingRoomLabel = isset($meetingRoomLabel) ? trim((string) $meetingRoomLabel) : '';
+    $label = trim(($cardTitle ?? 'Enquiry').($meetingRoomLabel !== '' ? ' — '.$meetingRoomLabel : '').' ('.$source.')');
     $c = \App\Support\HotelChannels::all();
     $waDigits = preg_replace('/\D+/', '', (string) ($c['whatsapp_e164'] ?? ''));
     $waMsg = trim(($c['whatsapp_default_message'] ?? '').' '.$label);

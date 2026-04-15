@@ -15,9 +15,9 @@
     @endif
     <div style="background: #f5f5f5; padding: 16px; border-radius: 8px; margin-bottom: 24px; white-space: pre-wrap;">{{ $enquiry->admin_reply }}</div>
 
-    <p style="margin: 24px 0;">
+    {{-- <p style="margin: 24px 0;">
         <a href="{{ route('connect') }}" style="display: inline-block; background: #0356b7; color: #fff; text-decoration: none; padding: 12px 20px; border-radius: 6px; font-weight: bold;">View availability &amp; book</a>
     </p>
-    <p style="font-size: 13px; color: #666;">{{ config('app.name') }}</p>
+    <p style="font-size: 13px; color: #666;">{{ config('app.name') }}</p> --}}
 </body>
 </html>
