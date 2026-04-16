@@ -23,6 +23,14 @@
     $gCount = $c['google_review_count'] ?? null;
     $gSummary = $c['google_review_summary'] ?? null;
 
+    $bookingScreenshotPath = 'storage/review-cards/booking-com.png';
+    $taScreenshotPath = 'storage/review-cards/tripadvisor.png';
+    $googleScreenshotPath = 'storage/review-cards/google.png';
+
+    $hasBookingScreenshot = file_exists(public_path($bookingScreenshotPath));
+    $hasTaScreenshot = file_exists(public_path($taScreenshotPath));
+    $hasGoogleScreenshot = file_exists(public_path($googleScreenshotPath));
+
     $fmtScore = static function ($v, int $decimals = 1): string {
         return number_format((float) $v, $decimals, '.', ',');
     };
@@ -52,8 +60,8 @@
 
             {{-- Booking.com --}}
             <div class="col-lg-4">
-                <div class="reviews-platform-card h-100 d-flex flex-column rounded-3 bg-white shadow-sm border overflow-hidden">
-                    <div class="px-3 px-lg-4 py-3 border-bottom bg-light">
+                <div class="reviews-platform-card h-100 d-flex flex-column rounded-4 bg-white shadow-soft border-0 overflow-hidden">
+                    <div class="px-3 px-lg-4 py-3 border-bottom bg-gradient-primary-subtle">
                         <div class="d-flex align-items-center gap-3 mb-1">
                             <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-white border" style="width:44px;height:44px;">
                                 <i class="fa-solid fa-bed text-primary" style="font-size:1.2rem;" aria-hidden="true"></i>
@@ -66,9 +74,18 @@
                             </div>
                         </div>
                     </div>
-                    <div class="p-3 p-lg-4 flex-grow-1">
+                    <div class="p-3 p-lg-4 flex-grow-1 d-flex flex-column gap-3">
                         @if($bcScore !== null || $bcCount !== null || filled($bcSummary))
-                            <div class="external-review-stats rounded-3 border bg-light p-3 mb-3">
+                            <div class="external-review-stats rounded-3 border bg-light p-3 mb-1 shadow-xs">
+                                @if($hasBookingScreenshot)
+                                    <div class="ratio ratio-16x9 mb-3">
+                                        <img
+                                            src="{{ asset($bookingScreenshotPath) }}"
+                                            alt="Booking.com reviews summary screenshot"
+                                            class="img-fluid rounded-2 border"
+                                            loading="lazy">
+                                    </div>
+                                @endif
                                 @if($bcScore !== null)
                                     <p class="h2 mb-1 text-primary">{{ $fmtScore($bcScore) }}<span class="fs-6 text-muted fw-normal"> / 10</span></p>
                                 @endif
@@ -82,7 +99,7 @@
                         @else
                             <p class="small text-muted mb-3">Add score, count, or a short summary in Settings so guests see your Booking.com reputation at a glance.</p>
                         @endif
-                        <p class="small text-muted mb-0">
+                        <p class="small text-muted mb-0 mt-1">
                             Booking.com shows guest scores and reviews on the property listing. Writing a review is usually via their post-stay invitation for verified guests.
                         </p>
                     </div>
@@ -103,8 +120,8 @@
 
             {{-- TripAdvisor --}}
             <div class="col-lg-4">
-                <div class="reviews-platform-card h-100 d-flex flex-column rounded-3 bg-white shadow-sm border overflow-hidden">
-                    <div class="px-3 px-lg-4 py-3 border-bottom bg-light">
+                <div class="reviews-platform-card h-100 d-flex flex-column rounded-4 bg-white shadow-soft border-0 overflow-hidden">
+                    <div class="px-3 px-lg-4 py-3 border-bottom bg-gradient-success-subtle">
                         <div class="d-flex align-items-center gap-3 mb-1">
                             <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-white border" style="width:44px;height:44px;">
                                 <i class="fa-brands fa-tripadvisor text-success" style="font-size:1.35rem;" aria-hidden="true"></i>
@@ -118,6 +135,15 @@
                     @if($taScore !== null || $taCount !== null || filled($taSummary))
                         <div class="px-3 px-lg-4 pt-3">
                             <div class="external-review-stats rounded-3 border bg-light p-3">
+                                @if($hasTaScreenshot)
+                                    <div class="ratio ratio-16x9 mb-3">
+                                        <img
+                                            src="{{ asset($taScreenshotPath) }}"
+                                            alt="TripAdvisor reviews summary screenshot"
+                                            class="img-fluid rounded-2 border"
+                                            loading="lazy">
+                                    </div>
+                                @endif
                                 @if($taScore !== null)
                                     <p class="h2 mb-1 text-success">{{ $fmtScore($taScore) }}<span class="fs-6 text-muted fw-normal"> / 5</span></p>
                                 @endif
@@ -130,7 +156,7 @@
                             </div>
                         </div>
                     @endif
-                    <div class="reviews-platform-card__widget flex-grow-1 p-3 p-lg-4" style="min-height: 240px;">
+                    <div class="reviews-platform-card__widget flex-grow-1 p-3 p-lg-4 bg-white" style="min-height: 240px;">
                         <div id="TA_selfserveprop482" class="TA_selfserveprop">
                             <ul class="TA_links TA482" id="TA482"></ul>
                         </div>
@@ -148,8 +174,8 @@
 
             {{-- Google --}}
             <div class="col-lg-4">
-                <div class="reviews-platform-card h-100 d-flex flex-column rounded-3 bg-white shadow-sm border overflow-hidden">
-                    <div class="px-3 px-lg-4 py-3 border-bottom bg-light">
+                <div class="reviews-platform-card h-100 d-flex flex-column rounded-4 bg-white shadow-soft border-0 overflow-hidden">
+                    <div class="px-3 px-lg-4 py-3 border-bottom bg-gradient-primary-subtle">
                         <div class="d-flex align-items-center gap-3 mb-1">
                             <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-white border" style="width:44px;height:44px;">
                                 <i class="fa-brands fa-google text-primary" style="font-size:1.25rem;" aria-hidden="true"></i>
@@ -162,7 +188,16 @@
                     </div>
                     @if($gScore !== null || $gCount !== null || filled($gSummary))
                         <div class="px-3 px-lg-4 pt-3">
-                            <div class="external-review-stats rounded-3 border bg-light p-3">
+                            <div class="external-review-stats rounded-3 border bg-light p-3 mb-0 shadow-xs">
+                                @if($hasGoogleScreenshot)
+                                    <div class="ratio ratio-16x9 mb-3">
+                                        <img
+                                            src="{{ asset($googleScreenshotPath) }}"
+                                            alt="Google reviews summary screenshot"
+                                            class="img-fluid rounded-2 border"
+                                            loading="lazy">
+                                    </div>
+                                @endif
                                 @if($gScore !== null)
                                     <p class="h2 mb-1 text-primary">{{ $fmtScore($gScore) }}<span class="fs-6 text-muted fw-normal"> / 5</span></p>
                                 @endif
@@ -175,7 +210,7 @@
                             </div>
                         </div>
                     @endif
-                    <div class="ratio ratio-4x3 border-bottom">
+                    <div class="ratio ratio-4x3 border-bottom bg-light">
                         @if(filled($embedG))
                             <iframe
                                 title="Hotel on Google Maps"

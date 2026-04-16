@@ -271,9 +271,41 @@ $data = App\Models\Setting::first();
                 <div class="col-lg-4 ">
                     <ul class="topbar-social-icons d-flex align-items-center">
                         <li class="follow-text">Follow Us</li>
-                        <li><a href="{{ $data?->facebook ?? '' }}"><i class="flaticon-facebook-app-symbol"></i></a></li>
-                        <li><a href="{{ $data?->twitter ?? '' }}"><i class="flaticon-twitter-1"></i></a></li>
-                        <li><a href="{{ $data?->instagram ?? '' }}"><i class="flaticon-instagram-2"></i></a></li>
+                        @if(!empty($data?->facebook))
+                            <li>
+                                <a href="{{ $data->facebook }}" target="_blank" rel="noopener noreferrer">
+                                    <i class="flaticon-facebook-app-symbol"></i>
+                                </a>
+                            </li>
+                        @endif
+                        @if(!empty($data?->twitter))
+                            <li>
+                                <a href="{{ $data->twitter }}" target="_blank" rel="noopener noreferrer">
+                                    <i class="flaticon-twitter-1"></i>
+                                </a>
+                            </li>
+                        @endif
+                        @if(!empty($data?->instagram))
+                            <li>
+                                <a href="{{ $data->instagram }}" target="_blank" rel="noopener noreferrer">
+                                    <i class="flaticon-instagram-2"></i>
+                                </a>
+                            </li>
+                        @endif
+                        @if(!empty($data?->youtube))
+                            <li>
+                                <a href="{{ $data->youtube }}" target="_blank" rel="noopener noreferrer">
+                                    <i class="bi bi-youtube"></i>
+                                </a>
+                            </li>
+                        @endif
+                        @if(!empty($data?->linkedin))
+                            <li>
+                                <a href="{{ $data->linkedin }}" target="_blank" rel="noopener noreferrer">
+                                    <i class="bi bi-linkedin"></i>
+                                </a>
+                            </li>
+                        @endif
                     </ul>
                 </div>
                 <div class="col-lg-4 col-md-6 col-sm-6 d-flex justify-content-lg-center">
