@@ -847,7 +847,6 @@
                             @endif
                         </ul>
 
-                        @php $reviewCount = \App\Models\Review::approved()->count(); @endphp
                         @if(count($socialLinks) > 0)
                             <div class="footer__social__link footer__social__link--chips mt-4">
                                 @foreach($socialLinks as $social)
@@ -864,11 +863,8 @@
                         @endif
 
                         <div class="mt-3 footer__reviews">
-                            <a wire:navigate href="{{ route('reviews') }}" class="footer__reviews-link" title="See Booking.com, TripAdvisor, and Google ratings plus on-site reviews.">
-                                <span class="footer__reviews-count">{{ $reviewCount }}</span>
-                                <span class="footer__reviews-label">{{ $reviewCount === 1 ? 'guest review' : 'guest reviews on this site' }}</span>
-                                <span class="footer__reviews-sep">·</span>
-                                <span class="footer__reviews-cta">All reviews & ratings</span>
+                            <a wire:navigate href="{{ route('reviews') }}" class="footer__reviews-link" title="See reviews and ratings from Booking.com, TripAdvisor, and Google.">
+                                <span class="footer__reviews-cta">All reviews &amp; ratings</span>
                             </a>
                         </div>
 
