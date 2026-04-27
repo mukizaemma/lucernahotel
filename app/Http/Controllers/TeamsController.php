@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Team;
+use App\Models\StaffMember;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 
@@ -12,7 +12,7 @@ class TeamsController extends Controller
 {
     public function index()
     {
-        $team = Team::latest()->get();
+        $team = StaffMember::latest()->get();
         return view('admin.team',['team'=>$team]);
     }
 
@@ -29,7 +29,7 @@ class TeamsController extends Controller
 
         $slug = Str::of($request->input('names'))->slug();
 
-        $blog = Team::firstOrCreate(
+        $blog = StaffMember::firstOrCreate(
             ['slug' => $slug],
             [
                 'names' => $request->input('names'),
@@ -48,13 +48,13 @@ class TeamsController extends Controller
 
     public function edit($id)
     {
-        $team = Team::find($id);
+        $team = StaffMember::find($id);
         return view('admin.teamUpdate',['team'=>$team]);
     }
 
     public function update(Request $request, $id)
     {
-        $post = team::findOrFail($id);
+        $post = StaffMember::findOrFail($id);
         if($request->hasFile('image')){
             $file = $request->file('image');
 
@@ -75,12 +75,12 @@ class TeamsController extends Controller
 
         if($post->names !== $request->input('names')){
             $slug = Str::of($request->input('names'))->slug();
-            $existingpost = team::where('slug', $slug)->first();
+            $existingpost = StaffMember::where('slug', $slug)->first();
             if($existingpost && $existingpost->id !== $post->id){
                 $suffix = 1;
                 do{
                     $newSlug = $slug . '-' . $suffix++;
-                    $existingpost = team::where('slug', $newSlug)->first();
+                    $existingpost = StaffMember::where('slug', $newSlug)->first();
                 }while($existingpost);
                 $slug = $newSlug;
             }
@@ -95,7 +95,7 @@ class TeamsController extends Controller
 
     public function destroy($id)
     {
-        $post = team::findOrFail($id);
+        $post = StaffMember::findOrFail($id);
 
         Storage::delete('public/images/team/' . $post->image);
 

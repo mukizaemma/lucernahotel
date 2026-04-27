@@ -63,11 +63,14 @@ class RoomsController extends Controller
         $images = $room->images;
         $totalImages = $images->count();
         $allAmenities = Amenity::all();
+        $setting = Setting::first();
+
         return view('admin.rooms.roomUpdate', [
-            'room'=>$room,
-            'allAmenities'=>$allAmenities,
-            'images'=>$images,
-            'totalImages'=>$totalImages,
+            'room' => $room,
+            'allAmenities' => $allAmenities,
+            'images' => $images,
+            'totalImages' => $totalImages,
+            'setting' => $setting,
         ]);
     }
     public function view($id)

@@ -18,6 +18,18 @@ if (! function_exists('hotel_price')) {
     }
 }
 
+if (! function_exists('price_currency_label')) {
+    /**
+     * Short label for admin room/pricing forms (Settings → website price currency).
+     */
+    function price_currency_label(?object $setting): string
+    {
+        return strtolower((string) ($setting?->price_currency ?? 'usd')) === 'rwf'
+            ? 'RWF'
+            : 'USD ($)';
+    }
+}
+
 if (! function_exists('terms_content_html')) {
     /**
      * Public Terms page: render CMS HTML from Summernote, or upgrade legacy plain-text

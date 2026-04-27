@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Amenity;
 use App\Models\Room;
 use App\Models\Roomimage;
-use App\Models\Amenity;
+use App\Models\Setting;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 
@@ -15,7 +16,9 @@ class RoomManagementController extends Controller
     {
         $rooms = Room::with(['amenities', 'images'])->latest()->get();
         $amenities = Amenity::all();
-        return view('content-management.rooms.index', compact('rooms', 'amenities'));
+        $setting = Setting::first();
+
+        return view('content-management.rooms.index', compact('rooms', 'amenities', 'setting'));
     }
 
     public function store(Request $request)

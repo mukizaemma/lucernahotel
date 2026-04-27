@@ -62,9 +62,9 @@
                                                 id="title" value="{{$room->title}}">
                                         </div>
                                         <div class="col-lg-4 col-sm-12">
-                                            <label for="title" class="form-label">Room Price</label>
+                                            <label for="room_price_field" class="form-label">Room price / night ({{ price_currency_label($setting) }})</label>
                                             <input type="text" name="price" class="form-control"
-                                                id="title" value="{{$room->price}}">
+                                                id="room_price_field" value="{{ $room->price }}">
                                         </div>
 
                                     </div>

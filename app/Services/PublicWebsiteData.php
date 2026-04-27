@@ -510,7 +510,10 @@ class PublicWebsiteData
     public static function updates(): array
     {
         $blogs = Blog::where('status', 'Published')->latest()->get();
-        $rooms = Room::oldest()->get();
+        $rooms = Room::with('images')
+            ->where('status', 'Active')
+            ->oldest()
+            ->get();
         $latestBlogs = Blog::where('status', 'Published')->latest()->paginate(10);
         $setting = Setting::first();
         $about = About::first();

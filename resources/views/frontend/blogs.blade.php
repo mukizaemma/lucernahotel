@@ -79,12 +79,12 @@
                                 <div class="single__post">
                                 <div class="single__post__thumb">
                                     <a wire:navigate href="{{ route('room',['slug'=>$room->slug]) }}">
-                                        <img src="{{ asset('storage/images/rooms/' .$room->image) }}" height="106" width="110" alt="">
+                                        <img src="{{ $room->publicThumbnailUrl() }}" height="106" width="110" alt="{{ $room->title }}">
                                     </a>
                                 </div>
                                 <div class="single__post__meta">
-                                    <a wire:navigate href="{{ route('room',['slug'=>$room->slug]) }}" class="font-sm">Top 10 Reasons Guests Love Staying at Bokinn</a>
-                                    <span>$ {{ $room->price }}{{ $room->price > 200 ? '/Month' : '/Night' }}</span>
+                                    <a wire:navigate href="{{ route('room',['slug'=>$room->slug]) }}" class="font-sm">{{ $room->title }}</a>
+                                    <span>{{ hotel_price($room->price ?? 0, $setting) }}<span class="text-lowercase">/night</span></span>
                                 </div>
                             </div>
                             @endforeach

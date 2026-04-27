@@ -53,7 +53,7 @@
                                             {{ ucfirst($room->room_status) }}
                                         </span>
                                     </td>
-                                    <td>{{ number_format($room->price ?? 0) }} RWF</td>
+                                    <td>{{ hotel_price($room->price ?? 0, $setting) }}<span class="text-muted">/night</span></td>
                                     <td>{{ $room->amenities->count() }} amenities</td>
                                     <td>
                                         <button class="btn btn-sm btn-info" onclick="viewRoom({{ $room->id }})">
@@ -109,7 +109,7 @@
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Base room price (RWF / night) <span class="text-danger">*</span></label>
+                            <label class="form-label">Base room price ({{ price_currency_label($setting) }} / night) <span class="text-danger">*</span></label>
                             <input type="number" class="form-control" id="room_price" name="price" min="0" step="1" required>
                             <small class="text-muted">Rate for up to the number of guests below.</small>
                         </div>
@@ -121,17 +121,17 @@
                     </div>
                     <div class="row">
                         <div class="col-md-4 mb-3">
-                            <label class="form-label">Extra adult (RWF / night)</label>
+                            <label class="form-label">Extra adult ({{ price_currency_label($setting) }} / night)</label>
                             <input type="number" class="form-control" id="room_extra_adult" name="extra_adult_price" min="0" step="1" placeholder="0">
                             <small class="text-muted">Per extra adult beyond included guests.</small>
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label class="form-label">Extra child (RWF / night)</label>
+                            <label class="form-label">Extra child ({{ price_currency_label($setting) }} / night)</label>
                             <input type="number" class="form-control" id="room_extra_child" name="extra_child_price" min="0" step="1" placeholder="0">
                             <small class="text-muted">Per extra child beyond included guests.</small>
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label class="form-label">Extra bed (RWF / night)</label>
+                            <label class="form-label">Extra bed ({{ price_currency_label($setting) }} / night)</label>
                             <input type="number" class="form-control" id="room_extra_bed" name="extra_bed_price" min="0" step="1" placeholder="0">
                             <small class="text-muted">If guest requests an additional bed.</small>
                         </div>
@@ -194,6 +194,19 @@
 </div>
 
 <script>
+@php
+    $adminCurrencyRwf = strtolower((string) (optional($setting)->price_currency ?? 'usd')) === 'rwf';
+@endphp
+const __roomAdminPriceIsRwf = @json($adminCurrencyRwf);
+function __formatRoomAdminPrice (v) {
+    if (v == null || v === '' || typeof v === 'undefined') { return '—'; }
+    const n = Number(v);
+    if (Number.isNaN(n)) { return '—'; }
+    if (__roomAdminPriceIsRwf) {
+        return 'RWF ' + n.toLocaleString('en-US', { maximumFractionDigits: 0 }) + ' / night';
+    }
+    return '$' + n.toLocaleString('en-US', { maximumFractionDigits: 0 }) + ' / night';
+}
 let currentRoomId = null;
 
 function resetForm() {
@@ -360,11 +373,11 @@ function viewRoom(id) {
                 <p><strong>Room Number:</strong> ${data.room_number || 'N/A'}</p>
                 <p><strong>Number of rooms:</strong> ${data.number_of_rooms ?? 1}</p>
                 <p><strong>Category:</strong> ${data.category || 'N/A'}</p>
-                <p><strong>Base price:</strong> ${data.price ? new Intl.NumberFormat().format(data.price) + ' RWF / night' : 'N/A'}</p>
+                <p><strong>Base price:</strong> ${data.price != null && data.price !== '' ? __formatRoomAdminPrice(data.price) : 'N/A'}</p>
                 <p><strong>Guests included in base price:</strong> ${data.guests_included_in_price ?? '—'}</p>
-                <p><strong>Extra adult:</strong> ${data.extra_adult_price != null ? new Intl.NumberFormat().format(data.extra_adult_price) + ' RWF / night' : '—'}</p>
-                <p><strong>Extra child:</strong> ${data.extra_child_price != null ? new Intl.NumberFormat().format(data.extra_child_price) + ' RWF / night' : '—'}</p>
-                <p><strong>Extra bed:</strong> ${data.extra_bed_price != null ? new Intl.NumberFormat().format(data.extra_bed_price) + ' RWF / night' : '—'}</p>
+                <p><strong>Extra adult:</strong> ${data.extra_adult_price != null && data.extra_adult_price !== '' ? __formatRoomAdminPrice(data.extra_adult_price) : '—'}</p>
+                <p><strong>Extra child:</strong> ${data.extra_child_price != null && data.extra_child_price !== '' ? __formatRoomAdminPrice(data.extra_child_price) : '—'}</p>
+                <p><strong>Extra bed:</strong> ${data.extra_bed_price != null && data.extra_bed_price !== '' ? __formatRoomAdminPrice(data.extra_bed_price) : '—'}</p>
                 <p><strong>Status:</strong> <span class="badge bg-${data.status == 'Active' ? 'success' : 'danger'}">${data.status}</span></p>
                 <p><strong>Room Status:</strong> <span class="badge bg-${data.room_status == 'available' ? 'success' : (data.room_status == 'occupied' ? 'danger' : (data.room_status == 'reserved' ? 'warning' : 'secondary'))}">${data.room_status ? data.room_status.charAt(0).toUpperCase() + data.room_status.slice(1) : 'N/A'}</span></p>
                 <p><strong>Description:</strong> ${data.description || 'N/A'}</p>

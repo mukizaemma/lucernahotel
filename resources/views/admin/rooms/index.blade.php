@@ -60,7 +60,7 @@
                                     <td><a href="{{ route('editRoom',['id'=>$rs->id]) }}">{{ $rs->title }}</a> 
                                     <br> <spam>{{$rs->images->count()}} Images  
                                     </td>
-                                    <td>{{ $rs->category }}<br> <span class="text-teal">{{ $rs->price }}</span></td>
+                                    <td>{{ $rs->category }}<br> <span class="text-teal">{{ hotel_price($rs->price ?? 0, $setting) }}</span></td>
                                     <td><img src="{{ asset('storage/images/rooms/' .$rs->image) }}" alt="" width="120px"></td>
                                     <td>{!! Str::words($rs->description, 50, '...') !!}</td>
                                     <td>
@@ -119,7 +119,7 @@
                         </div>
                         <div class="row">
                             <div class="col-lg-4 col-sm-12">
-                                <label for="title" class="form-label">Room Price/Night($)</label>
+                                <label for="title" class="form-label">Room price / night ({{ price_currency_label($setting) }})</label>
                                 <input type="text" name="price" class="form-control"
                                     id="title" placeholder="Eg: 50" required="">
                             </div>
