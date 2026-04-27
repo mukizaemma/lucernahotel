@@ -41,6 +41,10 @@ return [
         'label' => 'Gallery',
         'path' => '/gallery',
     ],
+    'our-team' => [
+        'label' => 'Our Team',
+        'path' => '/our-team',
+    ],
     'updates' => [
         'label' => 'Updates / Blog',
         'path' => '/our-updates',

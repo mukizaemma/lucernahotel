@@ -19,6 +19,7 @@ use App\Models\Review;
 use App\Models\Room;
 use App\Models\Service;
 use App\Models\Setting;
+use App\Models\StaffMember;
 use App\Models\Slide;
 use App\Models\TermsCondition;
 use App\Models\TourActivity;
@@ -528,6 +529,21 @@ class PublicWebsiteData
             'categories' => $categories,
             'about' => $about,
             'pageHero' => $pageHero,
+        ];
+    }
+
+    public static function ourTeam(): array
+    {
+        $setting = Setting::first();
+        $about = About::first();
+        $pageHero = PageHero::getBySlug('our-team');
+        $staff = StaffMember::query()->oldest()->get();
+
+        return [
+            'setting' => $setting,
+            'about' => $about,
+            'pageHero' => $pageHero,
+            'staff' => $staff,
         ];
     }
 

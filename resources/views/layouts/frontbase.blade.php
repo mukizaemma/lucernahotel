@@ -358,8 +358,8 @@
                                             <li role="menuitem"><a wire:navigate.hover href="{{ route('about')}}#background">Our History</a></li>
                                             <li role="menuitem"><a wire:navigate.hover href="{{ route('our-services') }}">Our Services</a></li>
                                             <li role="menuitem"><a wire:navigate.hover href="{{ route('terms')}}">Terms & Conditions</a></li>
-                                            <li role="menuitem"><a wire:navigate.hover href="{{ route('updates')}}">Our Team</a></li>
-                                            <li role="menuitem"><a wire:navigate.hover href="{{ route('updates')}}">Updates</a></li>
+                                            <li role="menuitem"><a wire:navigate.hover href="{{ route('our-team') }}">Our Team</a></li>
+                                            <li role="menuitem"><a wire:navigate.hover href="{{ route('updates') }}">Updates</a></li>
                                             <li role="menuitem"><a wire:navigate.hover href="{{ route('contact')}}">Contacts</a></li>
                                         </ul>
                                     </li>
@@ -629,6 +629,7 @@
                                         <li><a wire:navigate href="{{ route('about') }}#background">Background</a></li>
                                         <li><a wire:navigate href="{{ route('our-services') }}">Our Services</a></li>
                                         <li><a wire:navigate href="{{ route('terms') }}">Terms & Conditions</a></li>
+                                        <li><a wire:navigate href="{{ route('our-team') }}">Our Team</a></li>
                                         <li><a wire:navigate href="{{ route('contact') }}">Contacts</a></li>
                                         <li><a wire:navigate href="{{ route('updates') }}">Updates</a></li>
                                     </ul>
