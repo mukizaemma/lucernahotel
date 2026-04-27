@@ -18,7 +18,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Ensures helpers load even when Composer autoload "files" is stale on deploy (hotel_price, terms_content_html).
+        require_once base_path('app/helpers.php');
     }
 
     /**

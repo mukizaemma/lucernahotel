@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Throwable;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -25,7 +26,7 @@ class TrackVisits
                 'user_agent' => $request->userAgent(),
                 'referrer' => $request->headers->get('referer'),
                 'method' => $request->method(),
-                'path' => '/'.ltrim($request->path(), '/'),
+                'path' => Str::limit('/'.ltrim($request->path(), '/'), 512, ''),
                 'url' => $request->fullUrl(),
                 'country_code' => $this->resolveCountryCode($request),
                 'visited_at' => now(),

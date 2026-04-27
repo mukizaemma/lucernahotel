@@ -15,7 +15,8 @@ return new class extends Migration
             $table->text('user_agent')->nullable();
             $table->text('referrer')->nullable();
             $table->string('method', 10)->default('GET');
-            $table->string('path', 2048)->nullable()->index();
+            // Indexable length: utf8mb4 × 2048 chars exceeds MySQL's max key length; request path() is short; full URL is in `url`.
+            $table->string('path', 512)->nullable()->index();
             $table->text('url')->nullable();
             $table->string('country_code', 8)->nullable()->index();
             $table->timestamp('visited_at')->index();
