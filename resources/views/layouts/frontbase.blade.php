@@ -26,6 +26,19 @@
     <!-- title -->
     <title>@hasSection('document_title')@yield('document_title')@else{{ $setting?->company ?? '' }}@endif</title>
     @stack('head')
+    @php
+        $gaMeasurementId = strtoupper(trim((string) ($setting->ga4_measurement_id ?? '')));
+        $gaMeasurementId = preg_match('/^G-[A-Z0-9]+$/', $gaMeasurementId) === 1 ? $gaMeasurementId : null;
+    @endphp
+    @if($gaMeasurementId)
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gaMeasurementId }}"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '{{ $gaMeasurementId }}');
+        </script>
+    @endif
 
     <!-- google fonts - Uniform, readable fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">

@@ -73,17 +73,16 @@ Route::middleware(['auth', 'admin'])->prefix('content-management')->name('conten
     Route::post('/seo-data/update', [App\Http\Controllers\ContentManagementController::class, 'updateSeoData'])->name('seo.update');
     Route::post('/seo-data/store', [App\Http\Controllers\ContentManagementController::class, 'updateSeoData'])->name('seo.store');
     
-    // System Users (Super Admin only - role_id=1) - Full CRUD with Email Verification
-    Route::middleware('superadmin')->group(function () {
-        Route::get('/users', UserManagementIndex::class)->name('users');
-        Route::post('/users/store', [App\Http\Controllers\UserManagementController::class, 'store'])->name('users.store');
-        Route::get('/users/{id}', [App\Http\Controllers\UserManagementController::class, 'show'])->name('users.show');
-        Route::post('/users/{id}/update', [App\Http\Controllers\UserManagementController::class, 'update'])->name('users.update');
-        Route::delete('/users/{id}', [App\Http\Controllers\UserManagementController::class, 'destroy'])->name('users.destroy');
-        Route::post('/users/{id}/verify-email', [App\Http\Controllers\UserManagementController::class, 'verifyEmail'])->name('users.verify-email');
-        Route::post('/users/{id}/resend-verification', [App\Http\Controllers\UserManagementController::class, 'resendVerification'])->name('users.resend-verification');
-        Route::post('/users/{id}/reset-password', [App\Http\Controllers\UserManagementController::class, 'resetPassword'])->name('users.reset-password');
-    });
+    // System Users: only admin@iremetech.com can CRUD all users.
+    // Other admin users can access the page but only view themselves.
+    Route::get('/users', UserManagementIndex::class)->name('users');
+    Route::post('/users/store', [App\Http\Controllers\UserManagementController::class, 'store'])->name('users.store');
+    Route::get('/users/{id}', [App\Http\Controllers\UserManagementController::class, 'show'])->name('users.show');
+    Route::post('/users/{id}/update', [App\Http\Controllers\UserManagementController::class, 'update'])->name('users.update');
+    Route::delete('/users/{id}', [App\Http\Controllers\UserManagementController::class, 'destroy'])->name('users.destroy');
+    Route::post('/users/{id}/verify-email', [App\Http\Controllers\UserManagementController::class, 'verifyEmail'])->name('users.verify-email');
+    Route::post('/users/{id}/resend-verification', [App\Http\Controllers\UserManagementController::class, 'resendVerification'])->name('users.resend-verification');
+    Route::post('/users/{id}/reset-password', [App\Http\Controllers\UserManagementController::class, 'resetPassword'])->name('users.reset-password');
     
     // Services - Full CRUD
     Route::get('/services', ServiceManagementIndex::class)->name('services');
@@ -237,6 +236,13 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/updateBlog/{id}', [App\Http\Controllers\BlogsController::class, 'update'])->name('updateBlog');
     Route::get('/deleteBlog/{id}', [App\Http\Controllers\BlogsController::class, 'destroy'])->name('deleteBlog');
     Route::get('/Blog/{blog}/publish', [App\Http\Controllers\BlogsController::class, 'publish'])->name('publishBlog');
+
+    // Team members
+    Route::get('/staff', [App\Http\Controllers\TeamsController::class, 'index'])->name('staff');
+    Route::post('/saveStaff', [App\Http\Controllers\TeamsController::class, 'store'])->name('saveStaff');
+    Route::get('/editStaff/{id}', [App\Http\Controllers\TeamsController::class, 'edit'])->name('editStaff');
+    Route::post('/updateStaff/{id}', [App\Http\Controllers\TeamsController::class, 'update'])->name('updateStaff');
+    Route::get('/deleteStaff/{id}', [App\Http\Controllers\TeamsController::class, 'destroy'])->name('deleteStaff');
 
 
     // Services

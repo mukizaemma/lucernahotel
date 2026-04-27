@@ -42,7 +42,7 @@ class TeamsController extends Controller
                 'slug' => $slug
             ]
         );
-        return redirect('staff')->with('success', 'New Team has been added successfuly');
+        return redirect()->route('staff')->with('success', 'New Team has been added successfuly');
     }
 
 
@@ -89,7 +89,7 @@ class TeamsController extends Controller
 
         $post->save();
 
-        return redirect('staff')->with('success', 'Team has been updated successfully');
+        return redirect()->route('staff')->with('success', 'Team has been updated successfully');
     }
 
 
@@ -101,7 +101,7 @@ class TeamsController extends Controller
 
         $post->delete();
 
-        return redirect('teamCrud')->with('success', 'Team has been removed');
+        return redirect()->route('staff')->with('success', 'Team has been removed');
 
 
     }

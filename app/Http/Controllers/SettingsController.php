@@ -7,6 +7,7 @@ use App\Models\Term;
 use App\Models\About;
 use App\Models\Aboutus;
 use App\Models\Setting;
+use App\Models\TermsCondition;
 use App\Models\Getinvolved;
 use App\Support\HotelChannels;
 use Illuminate\Http\Request;
@@ -30,11 +31,12 @@ class SettingsController extends Controller
         }
 
         $about = About::first();
+        $terms = TermsCondition::first();
 
         $canEditDelivery = Auth::check()
             && strtolower((string) Auth::user()->email) === 'admin@iremetech.com';
 
-        return view('admin.setting', compact('data', 'setting', 'about', 'canEditDelivery'));
+        return view('admin.setting', compact('data', 'setting', 'about', 'terms', 'canEditDelivery'));
     }
 
 
@@ -45,6 +47,9 @@ class SettingsController extends Controller
         ]);
         $request->validate([
             'star_rating' => 'nullable|integer|min:1|max:5',
+            'ga4_measurement_id' => 'nullable|string|max:32',
+            'ga4_reports_url' => 'nullable|url|max:4000',
+            'price_currency' => 'nullable|in:usd,rwf',
         ]);
 
         $data = Setting::first();
@@ -64,6 +69,10 @@ class SettingsController extends Controller
         $data->quote = $request->input('quote');
         $data->google_map_embed = $request->input('google_map_embed');
         $data->star_rating = $request->input('star_rating');
+        $ga4MeasurementId = strtoupper(trim((string) $request->input('ga4_measurement_id', '')));
+        $data->ga4_measurement_id = $ga4MeasurementId !== '' ? $ga4MeasurementId : null;
+        $data->ga4_reports_url = $request->filled('ga4_reports_url') ? trim((string) $request->input('ga4_reports_url')) : null;
+        $data->price_currency = $request->input('price_currency', 'usd');
         $data->user_id = Auth()->user()->id;
 
 

@@ -9,7 +9,7 @@
                 <a class="nav-link active" data-bs-toggle="tab" href="#about">About Hotel</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="tab" href="#terms">Terms & Conditions</a>
+                <a class="nav-link" data-bs-toggle="tab" href="#tab-terms">Terms & Conditions</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" data-bs-toggle="tab" href="#seo">SEO Data</a>
@@ -77,7 +77,7 @@
                     </form>
                 </div>
             </div>
-            <div id="terms" class="tab-pane fade">
+            <div id="tab-terms" class="tab-pane fade">
                 @php $terms = App\Models\TermsCondition::first(); @endphp
                 <div class="bg-light rounded h-100 p-4">
                     <h4 class="mb-4">Terms & Conditions</h4>

@@ -46,8 +46,8 @@
                     <!-- Content -->
                     <div class="terms-content" style="max-width: 100%;">
                         @if($terms && $terms->content)
-                            <div style="font-size: 1.05rem; line-height: 1.9; color: #4a5568;">
-                                {!! $terms->content !!}
+                            <div class="terms-content-inner" style="font-size: 1.05rem; line-height: 1.9; color: #4a5568;">
+                                {!! terms_content_html($terms->content) !!}
                             </div>
                         @elseif($about && $about?->storyDescription)
                             <div style="font-size: 1.05rem; line-height: 1.9; color: #4a5568;">

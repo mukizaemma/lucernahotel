@@ -3,6 +3,18 @@
 <div class="content">
     @include('admin.includes.navbar')
 
+    {{-- URLs for public/admin/js/user-management-actions.js (Livewire-safe; avoids inline scripts in morphed DOM) --}}
+    <div id="user-mgmt-config" class="d-none"
+        data-can-manage="{{ !empty($isManager) ? '1' : '0' }}"
+        data-url-show="{{ route('content-management.users.show', ['id' => '__ID__'], false) }}"
+        data-url-store="{{ route('content-management.users.store', [], false) }}"
+        data-url-update="{{ route('content-management.users.update', ['id' => '__ID__'], false) }}"
+        data-url-destroy="{{ route('content-management.users.destroy', ['id' => '__ID__'], false) }}"
+        data-url-verify="{{ route('content-management.users.verify-email', ['id' => '__ID__'], false) }}"
+        data-url-resend="{{ route('content-management.users.resend-verification', ['id' => '__ID__'], false) }}"
+        data-url-reset-password="{{ route('content-management.users.reset-password', ['id' => '__ID__'], false) }}"
+    ></div>
+
     <div class="container-fluid pt-4 px-4">
         <div class="bg-light rounded h-100 p-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
@@ -10,9 +22,11 @@
                     <h4 class="mb-0">System Users Management</h4>
                     <small class="text-muted">Assign <strong>Admin</strong> (content only) or <strong>Normal User</strong> (no admin). Super Admin accounts are created via seeding only.</small>
                 </div>
-                <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#userModal" onclick="resetForm()">
+                @if(!empty($isManager))
+                <button type="button" class="btn btn-primary btn-lg" data-open-add-user-modal>
                     <i class="fa fa-plus me-2"></i>Add New User
                 </button>
+                @endif
             </div>
 
             <div class="table-responsive">
@@ -50,24 +64,28 @@
                             </td>
                             <td><span class="badge bg-{{ $user->status == 'Active' ? 'success' : 'danger' }}">{{ $user->status }}</span></td>
                             <td>
-                                <div class="btn-group" role="group">
+                                <div class="btn-group js-user-actions" role="group">
+                                    @if(!empty($isManager))
                                     @if(!$user->email_verified_at)
-                                    <button class="btn btn-sm btn-success" onclick="verifyEmail({{ $user->id }})" title="Verify Email">
+                                    <button type="button" class="btn btn-sm btn-success" data-user-action="verify" data-user-id="{{ $user->id }}" title="Verify Email">
                                         <i class="fa fa-check"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-info" onclick="resendVerification({{ $user->id }})" title="Resend Verification">
+                                    <button type="button" class="btn btn-sm btn-info" data-user-action="resend" data-user-id="{{ $user->id }}" title="Resend Verification">
                                         <i class="fa fa-envelope"></i>
                                     </button>
                                     @endif
-                                    <button class="btn btn-sm btn-warning" onclick="editUser({{ $user->id }})" title="Edit User">
+                                    <button type="button" class="btn btn-sm btn-warning" data-user-action="edit" data-user-id="{{ $user->id }}" title="Edit User">
                                         <i class="fa fa-edit"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-secondary" onclick="resetPassword({{ $user->id }})" title="Reset Password">
+                                    <button type="button" class="btn btn-sm btn-secondary" data-user-action="reset-password" data-user-id="{{ $user->id }}" title="Reset Password">
                                         <i class="fa fa-key"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteUser({{ $user->id }})" title="Delete User">
+                                    <button type="button" class="btn btn-sm btn-danger" data-user-action="delete" data-user-id="{{ $user->id }}" title="Delete User">
                                         <i class="fa fa-trash"></i>
                                     </button>
+                                    @else
+                                    <span class="text-muted small">Read only</span>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -79,13 +97,14 @@
     </div>
 </div>
 
+@if(!empty($isManager))
 <!-- User Modal -->
 <div class="modal fade" id="userModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="userModalTitle">Add New User</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" data-dismiss="modal"></button>
             </div>
             <form id="userForm">
                 <div class="modal-body">
@@ -134,14 +153,16 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-primary">Save</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+@endif
 
+@if(!empty($isManager))
 <!-- Reset Password Modal -->
 <div class="modal fade" id="resetPasswordModal" tabindex="-1">
     <div class="modal-dialog">
@@ -174,192 +195,7 @@
         </div>
     </div>
 </div>
+@endif
 
-<script>
-let currentUserId = null;
-
-function resetForm() {
-    currentUserId = null;
-    document.getElementById('userForm').reset();
-    document.getElementById('user_id').value = '';
-    document.getElementById('user_password').required = true;
-    document.getElementById('passwordLabel').textContent = '*';
-    document.getElementById('userModalTitle').textContent = 'Add New User';
-    document.getElementById('verifyImmediatelyContainer').style.display = 'block';
-    document.getElementById('verify_immediately').checked = true; // Default to checked
-    const superOpt = document.getElementById('role_option_super_admin');
-    if (superOpt) superOpt.setAttribute('hidden', 'hidden');
-}
-
-function editUser(id) {
-    fetch(`{{ route('content-management.users.show', ':id') }}`.replace(':id', id))
-        .then(response => response.json())
-        .then(data => {
-            currentUserId = id;
-            const superOpt = document.getElementById('role_option_super_admin');
-            if (superOpt) {
-                if (data.role && data.role.slug === 'super-admin') {
-                    superOpt.removeAttribute('hidden');
-                } else {
-                    superOpt.setAttribute('hidden', 'hidden');
-                }
-            }
-            document.getElementById('user_id').value = data.id;
-            document.getElementById('user_name').value = data.name;
-            document.getElementById('user_email').value = data.email;
-            document.getElementById('user_role_id').value = data.role_id;
-            document.getElementById('user_password').required = false;
-            document.getElementById('passwordLabel').textContent = '(leave blank to keep current)';
-            document.getElementById('userModalTitle').textContent = 'Edit User';
-            document.getElementById('verifyImmediatelyContainer').style.display = 'none';
-            new bootstrap.Modal(document.getElementById('userModal')).show();
-        });
-}
-
-function verifyEmail(id) {
-    if (confirm('Verify this user\'s email?')) {
-        fetch(`{{ route('content-management.users.verify-email', ':id') }}`.replace(':id', id), {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            }
-        });
-    }
-}
-
-function resendVerification(id) {
-    fetch(`{{ route('content-management.users.resend-verification', ':id') }}`.replace(':id', id), {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Verification email sent successfully!');
-        }
-    });
-}
-
-function deleteUser(id) {
-    if (confirm('Are you sure you want to delete this user?')) {
-        fetch(`{{ route('content-management.users.destroy', ':id') }}`.replace(':id', id), {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            }
-        });
-    }
-}
-
-function resetPassword(id) {
-    document.getElementById('reset_password_user_id').value = id;
-    document.getElementById('resetPasswordForm').reset();
-    document.getElementById('reset_password_user_id').value = id;
-    new bootstrap.Modal(document.getElementById('resetPasswordModal')).show();
-}
-
-document.getElementById('resetPasswordForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const userId = document.getElementById('reset_password_user_id').value;
-    const password = document.getElementById('new_password').value;
-    const passwordConfirmation = document.getElementById('new_password_confirmation').value;
-    
-    if (password !== passwordConfirmation) {
-        alert('Passwords do not match!');
-        return;
-    }
-    
-    if (password.length < 8) {
-        alert('Password must be at least 8 characters long!');
-        return;
-    }
-    
-    const formData = new FormData();
-    formData.append('password', password);
-    formData.append('password_confirmation', passwordConfirmation);
-    
-    fetch(`{{ route('content-management.users.reset-password', ':id') }}`.replace(':id', userId), {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            'Accept': 'application/json'
-        },
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert(data.message || 'Password reset successfully!');
-            const modalElement = document.getElementById('resetPasswordModal');
-            if (modalElement && typeof jQuery !== 'undefined') {
-                jQuery(modalElement).modal('hide');
-            } else if (modalElement) {
-                modalElement.classList.remove('show');
-                modalElement.style.display = 'none';
-                document.body.classList.remove('modal-open');
-                const backdrop = document.querySelector('.modal-backdrop');
-                if (backdrop) backdrop.remove();
-            }
-        } else {
-            alert(data.message || 'Failed to reset password. Please try again.');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred. Please try again.');
-    });
-});
-
-document.getElementById('userForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const formData = new FormData(this);
-    const url = currentUserId 
-        ? `{{ route('content-management.users.update', ':id') }}`.replace(':id', currentUserId)
-        : '{{ route('content-management.users.store') }}';
-    
-    fetch(url, {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            'Accept': 'application/json'
-        },
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Close modal using jQuery (more reliable)
-            const modalElement = document.getElementById('userModal');
-            if (modalElement && typeof jQuery !== 'undefined') {
-                jQuery(modalElement).modal('hide');
-            } else if (modalElement) {
-                // Fallback: manually hide
-                modalElement.classList.remove('show');
-                modalElement.style.display = 'none';
-                document.body.classList.remove('modal-open');
-                const backdrop = document.querySelector('.modal-backdrop');
-                if (backdrop) backdrop.remove();
-            }
-            setTimeout(() => location.reload(), 300);
-        }
-    });
-});
-</script>
+{{-- Logic in public/admin/js/user-management-actions.js (loaded from layouts.adminBase) --}}
 </div>

@@ -38,9 +38,9 @@
                         <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
                             <i class="fa fa-chart-line fa-3x text-primary"></i>
                             <div class="ms-3">
-                                <p class="mb-2">Site Visitors</p>
-                                <h6 class="mb-0"><a href="https://analytics.google.com/analytics/web/#/p468682803/reports/intelligenthome" class="btn btn-dark" target="_blank">Google Analytics</a></h6>
-                                
+                                <p class="mb-1">Visits today</p>
+                                <h6 class="mb-0">{{ number_format($todayVisits ?? 0) }}</h6>
+                                <small class="text-muted">Unique: {{ number_format($todayUniqueVisitors ?? 0) }}</small>
                             </div>
                         </div>
                     </div>
@@ -48,8 +48,9 @@
                         <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
                             <i class="fa fa-chart-bar fa-3x text-primary"></i>
                             <div class="ms-3">
-                                <p class="mb-2">Total Rooms</p>
-                                <h6 class="mb-0"><a >{{$rooms}}</a></h6>
+                                <p class="mb-1">Visits this week</p>
+                                <h6 class="mb-0">{{ number_format($weekVisits ?? 0) }}</h6>
+                                <small class="text-muted">Month: {{ number_format($monthVisits ?? 0) }}</small>
                             </div>
                         </div>
                     </div>
@@ -64,16 +65,78 @@
                     </div> --}}
                     <div class="col-sm-6 col-xl-3">
                         <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
-                            <i class="fas fa-comments fa-3x text-primary"></i>
+                            <i class="fas fa-eye fa-3x text-primary"></i>
                             <div class="ms-3">
-                                <p class="mb-2">Orders</p>
-                                <h6 class="mb-0"><a href="{{ route('blogsComment') }}">{{ $blogCommetsCount }}</a></h6>
+                                <p class="mb-1">All-time visits</p>
+                                <h6 class="mb-0">{{ number_format($totalVisits ?? 0) }}</h6>
+                                @php $gaReportsUrl = $data->ga4_reports_url ?? null; @endphp
+                                @if(filled($gaReportsUrl))
+                                    <small><a href="{{ $gaReportsUrl }}" class="text-decoration-underline" target="_blank" rel="noopener noreferrer">Open GA4 reports</a></small>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                            <i class="fa fa-bed fa-3x text-primary"></i>
+                            <div class="ms-3">
+                                <p class="mb-2">Total Rooms</p>
+                                <h6 class="mb-0">{{ $rooms }}</h6>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <!-- Sale & Revenue End -->
+
+            <div class="container-fluid pt-4 px-4">
+                <div class="row g-4">
+                    <div class="col-xl-8">
+                        <div class="bg-light rounded p-4 h-100">
+                            <h6 class="mb-3">Most visited pages (last 30 days)</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Page</th>
+                                            <th class="text-end">Visits</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse(($topVisitedPages ?? []) as $page)
+                                            <tr>
+                                                <td><code>{{ $page->path }}</code></td>
+                                                <td class="text-end">{{ number_format($page->visits) }}</td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="2" class="text-muted">No visit data yet. Browse the public website to generate stats.</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4">
+                        <div class="bg-light rounded p-4 h-100">
+                            <h6 class="mb-3">Top visitor countries (header-based)</h6>
+                            <ul class="list-group list-group-flush">
+                                @forelse(($topVisitorCountries ?? []) as $country)
+                                    <li class="list-group-item bg-light d-flex justify-content-between px-0">
+                                        <span>{{ $country->country_code }}</span>
+                                        <strong>{{ number_format($country->visits) }}</strong>
+                                    </li>
+                                @empty
+                                    <li class="list-group-item bg-light text-muted px-0">
+                                        Country data not available yet. Use GA4 for accurate geo insights.
+                                    </li>
+                                @endforelse
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Sales Chart Start -->
      

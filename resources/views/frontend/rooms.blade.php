@@ -61,7 +61,7 @@
                             <div class="room__card__meta p-4 d-flex flex-column flex-grow-1">
                                 <a wire:navigate href="{{ route('room', ['slug' => $room->slug]) }}" class="room__card__title h5 mb-2 text-dark text-decoration-none">{{ $room->title }}</a>
                                 <div class="room__price__tag mb-2">
-                                    <span class="h5 text-primary">${{ number_format($room->price ?? 0, 0) }}/Night</span>
+                                    <span class="h5 text-primary">{{ hotel_price($room->price ?? 0, $setting) }}/Night</span>
                                 </div>
                                 <div class="room__card__meta__info mb-3 flex-grow-1">
                                     <p class="font-sm text-muted mb-0">{!! Str::words(strip_tags($room->description ?? ''), 20, '...') !!}</p>
@@ -94,7 +94,7 @@
                             <div class="room__card__meta p-4 d-flex flex-column flex-grow-1">
                                 <a wire:navigate href="{{ route('room', ['slug' => $room->slug]) }}" class="room__card__title h5 mb-2 text-dark text-decoration-none">{{ $room->title }}</a>
                                 <div class="room__price__tag mb-2">
-                                    <span class="h5 text-primary">${{ number_format($room->price ?? 0, 0) }}/Night</span>
+                                    <span class="h5 text-primary">{{ hotel_price($room->price ?? 0, $setting) }}/Night</span>
                                 </div>
                                 <div class="room__card__meta__info mb-3 flex-grow-1">
                                     <p class="font-sm text-muted mb-0">{!! Str::words(strip_tags($room->description ?? ''), 20, '...') !!}</p>

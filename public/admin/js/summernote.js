@@ -265,7 +265,12 @@ $(document).ready(function() {
     });
 
 $(document).ready(function() {
-    $('#founderDescription').summernote({
+    var $fd = $('#founderDescription');
+    // Settings page inits this on tab show; also avoid wrong height on hidden tabs
+    if (!$fd.length || $fd.closest('.admin-settings-tab-content').length) {
+        return;
+    }
+    $fd.summernote({
         placeholder: 'Founder Biography',
         tabsize: 2,
         height: 150,
@@ -481,7 +486,12 @@ $(document).ready(function() {
     });
 
 $(document).ready(function() {
-    $('#terms').summernote({
+    var $terms = $('#terms');
+    // Legacy admin terms page uses <textarea id="terms">; do not target tab panes or other divs
+    if (!$terms.length || !$terms.is('textarea')) {
+        return;
+    }
+    $terms.summernote({
         placeholder: 'Terms and conditions ',
         tabsize: 2,
         height: 150,

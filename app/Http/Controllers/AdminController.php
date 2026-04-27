@@ -18,6 +18,7 @@ use App\Mail\ContactMessageReplyMail;
 use App\Models\BlogComment;
 use App\Models\Booking;
 use App\Models\Message;
+use Carbon\Carbon;
 
 class AdminController extends Controller
 {
@@ -30,12 +31,51 @@ class AdminController extends Controller
         $data = Setting::first();
         $rooms = Room::count();
         $bookings = Booking::latest()->get();
+        $today = Carbon::today();
+        $weekStart = Carbon::now()->startOfWeek();
+        $monthStart = Carbon::now()->startOfMonth();
+
+        $totalVisits = DB::table('visits')->count();
+        $todayVisits = DB::table('visits')->whereDate('visited_at', $today)->count();
+        $weekVisits = DB::table('visits')->where('visited_at', '>=', $weekStart)->count();
+        $monthVisits = DB::table('visits')->where('visited_at', '>=', $monthStart)->count();
+        $todayUniqueVisitors = DB::table('visits')
+            ->whereDate('visited_at', $today)
+            ->selectRaw("COUNT(DISTINCT COALESCE(NULLIF(session_id, ''), ip_address)) as aggregate")
+            ->value('aggregate') ?? 0;
+
+        $topVisitedPages = DB::table('visits')
+            ->select('path', DB::raw('COUNT(*) as visits'))
+            ->where('visited_at', '>=', Carbon::now()->subDays(30))
+            ->whereNotNull('path')
+            ->groupBy('path')
+            ->orderByDesc('visits')
+            ->limit(8)
+            ->get();
+
+        $topVisitorCountries = DB::table('visits')
+            ->select('country_code', DB::raw('COUNT(*) as visits'))
+            ->where('visited_at', '>=', Carbon::now()->subDays(30))
+            ->whereNotNull('country_code')
+            ->where('country_code', '!=', '')
+            ->groupBy('country_code')
+            ->orderByDesc('visits')
+            ->limit(6)
+            ->get();
+
         return view('admin.dashboard',[
             'blogCommetsCount' =>$blogCommetsCount,
             'users'=>$users,
             'data'=>$data,
             'rooms'=>$rooms,
             'bookings'=>$bookings,
+            'totalVisits' => $totalVisits,
+            'todayVisits' => $todayVisits,
+            'weekVisits' => $weekVisits,
+            'monthVisits' => $monthVisits,
+            'todayUniqueVisitors' => $todayUniqueVisitors,
+            'topVisitedPages' => $topVisitedPages,
+            'topVisitorCountries' => $topVisitorCountries,
         ]);
     }
 

@@ -42,6 +42,41 @@
 
     <script src="{{asset('assets')}}/js/summernote.js"></script>
 
+    <script>
+    (function() {
+        function forceCloseModal(modalEl) {
+            if (!modalEl) return;
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                var bsInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+                if (bsInstance) {
+                    bsInstance.hide();
+                    return;
+                }
+            }
+            if (typeof jQuery !== 'undefined' && jQuery(modalEl).modal) {
+                jQuery(modalEl).modal('hide');
+                return;
+            }
+            modalEl.classList.remove('show');
+            modalEl.style.display = 'none';
+            modalEl.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('modal-open');
+            var backdrop = document.querySelector('.modal-backdrop');
+            if (backdrop) backdrop.remove();
+        }
+
+        document.addEventListener('click', function(e) {
+            var trigger = e.target.closest(
+                '[data-bs-dismiss="modal"], [data-dismiss="modal"], .modal .btn-close, .modal .close'
+            );
+            if (!trigger) return;
+            var modalEl = trigger.closest ? trigger.closest('.modal') : null;
+            if (!modalEl) return;
+            forceCloseModal(modalEl);
+        });
+    })();
+    </script>
+
     @yield('scripts')
 
 

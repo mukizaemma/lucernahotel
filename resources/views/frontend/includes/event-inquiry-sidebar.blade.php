@@ -26,8 +26,9 @@
             Tell us about your date and group size on <strong>WhatsApp</strong>, or email us — we’ll respond directly.
         </p>
         <div class="d-grid gap-2">
-            <a href="{{ $c['booking_com_url'] ?? '#' }}" class="theme-btn btn-style border btn-sm text-center" target="_blank" rel="noopener noreferrer" data-no-spa-navigate>
-                <i class="fa-solid fa-bed me-1" aria-hidden="true"></i> Rooms on Booking.com
+            <a href="{{ $c['booking_com_url'] ?? '#' }}" class="btn w-100 d-flex align-items-center justify-content-center gap-2 fw-semibold" style="background:#0356b7;border:1px solid #0356b7;color:#ffffff;" target="_blank" rel="noopener noreferrer" data-no-spa-navigate>
+                <i class="fa-solid fa-bed" aria-hidden="true"></i>
+                <span>Rooms on Booking.com</span>
             </a>
             <a href="{{ $waUrl }}" class="btn text-white w-100 d-flex align-items-center justify-content-center gap-2" style="background:#25D366;border-color:#25D366;" target="_blank" rel="noopener noreferrer" data-no-spa-navigate>
                 <i class="fa-brands fa-whatsapp fa-lg" aria-hidden="true"></i>

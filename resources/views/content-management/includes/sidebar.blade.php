@@ -73,12 +73,9 @@ $currentRoute = request()->route()->getName();
             
             <hr>
 
-            {{-- System Users - Only for Super Admin (role_id=1) when on Content Management dashboard --}}
-            @if(auth()->user()->hasRoleId(1))
             <a href="{{ route('content-management.users') }}" class="nav-item nav-link {{ str_contains($currentRoute, 'content-management.users') ? 'active' : '' }}">
                 <i class="fas fa-users me-2"></i>System Users
             </a>
-            @endif
 
             <a href="{{ route('setting') }}" class="nav-item nav-link">
                 <i class="fas fa-cog me-2"></i>Settings

@@ -9,6 +9,7 @@
     <meta charset="utf-8">
     <title>{{ $data?->company ?? '' }} - Admin</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta content="" name="keywords">
     <meta content="" name="description">
 
@@ -89,36 +90,59 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script src="/admin/js/summernote.js"></script>
+    @stack('scripts')
+
+    {{-- System Users (content-management/users): inline scripts in Livewire slots do not run reliably after SPA navigation --}}
+    <script src="{{ asset('admin/js/user-management-actions.js') }}"></script>
 
     {{-- Ensure admin modals can be closed via close button (BS4 loads last; close uses jQuery or BS5 API) --}}
     <script>
     (function() {
-        function closeModal(trigger) {
-            var modalEl = trigger.closest ? trigger.closest('.modal') : null;
+        function forceCloseModal(modalEl) {
             if (!modalEl) return;
+
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                var bsInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+                if (bsInstance) {
+                    bsInstance.hide();
+                    return;
+                }
+            }
+
             if (typeof jQuery !== 'undefined' && jQuery(modalEl).modal) {
                 jQuery(modalEl).modal('hide');
-            } else if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-                var instance = bootstrap.Modal.getInstance(modalEl);
-                if (instance) instance.hide();
-                else new bootstrap.Modal(modalEl).hide();
-            } else {
-                modalEl.classList.remove('show');
-                modalEl.style.display = 'none';
-                modalEl.setAttribute('aria-hidden', 'true');
-                document.body.classList.remove('modal-open');
-                document.body.style.removeProperty('overflow');
-                document.body.style.removeProperty('padding-right');
-                var backdrops = document.querySelectorAll('.modal-backdrop');
-                backdrops.forEach(function(b) { b.remove(); });
+                return;
             }
+
+            modalEl.classList.remove('show');
+            modalEl.style.display = 'none';
+            modalEl.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('modal-open');
+            document.body.style.removeProperty('overflow');
+            document.body.style.removeProperty('padding-right');
+            var backdrops = document.querySelectorAll('.modal-backdrop');
+            backdrops.forEach(function(b) { b.remove(); });
         }
+
         document.addEventListener('click', function(e) {
-            var t = e.target.closest('[data-bs-dismiss="modal"], [data-dismiss="modal"]');
-            if (t) {
-                e.preventDefault();
-                closeModal(t);
+            var trigger = e.target.closest(
+                '[data-bs-dismiss="modal"], [data-dismiss="modal"], .modal .btn-close, .modal .close'
+            );
+            if (!trigger) return;
+
+            var modalEl = trigger.closest ? trigger.closest('.modal') : null;
+            if (!modalEl) return;
+
+            if (
+                !trigger.hasAttribute('data-bs-dismiss')
+                && !trigger.hasAttribute('data-dismiss')
+                && !trigger.classList.contains('btn-close')
+                && !trigger.classList.contains('close')
+            ) {
+                return;
             }
+
+            forceCloseModal(modalEl);
         });
     })();
     </script>

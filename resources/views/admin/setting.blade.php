@@ -20,6 +20,23 @@
         @endif
 
         <h5 class="mb-3">Settings</h5>
+
+        <style>
+            /* Terms editor: full-width, comfortable height (Summernote sets .note-editable height) */
+            .settings-terms-editor-wrap .note-editor {
+                border-radius: 0.375rem;
+                margin-bottom: 0;
+            }
+            .settings-terms-editor-wrap .note-statusbar {
+                display: none;
+            }
+            /* Pin save actions while scrolling long tabs */
+            .admin-settings-tab-content .card-footer.bg-light {
+                position: sticky;
+                bottom: 0;
+                z-index: 5;
+            }
+        </style>
         <ul class="nav nav-tabs mb-4">
             <li class="nav-item">
                 <a class="nav-link active" data-bs-toggle="tab" href="#contacts">Contacts & Logo</a>
@@ -31,6 +48,9 @@
                 <a class="nav-link" data-bs-toggle="tab" href="#about">About Hotel</a>
             </li>
             <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#tab-terms">Terms &amp; Conditions</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" data-bs-toggle="tab" href="#seo">SEO Keywords</a>
             </li>
             @if(!empty($canEditDelivery))
@@ -40,7 +60,7 @@
             @endif
         </ul>
 
-        <div class="tab-content">
+        <div class="tab-content admin-settings-tab-content">
             {{-- Tab 1: Contacts & Logo — one card, one form --}}
             <div id="contacts" class="tab-pane fade show active">
                 <div class="card shadow-sm border-0">
@@ -48,9 +68,9 @@
                         <h5 class="mb-1">Contacts & Logo</h5>
                         <p class="text-muted small mb-0">Contact details and logos used across the site.</p>
                     </div>
-                    <div class="card-body">
                         <form action="{{ route('saveSetting', $data->id) }}" method="POST" enctype="multipart/form-data">
                             @csrf
+                    <div class="card-body border-bottom-0 pb-4">
                             <fieldset class="mb-4">
                                 <legend class="h6 text-secondary border-bottom pb-2 mb-3">Contact details</legend>
                                 <div class="row g-3">
@@ -135,6 +155,34 @@
                                 </div>
                             </fieldset>
                             <fieldset class="mb-4">
+                                <legend class="h6 text-secondary border-bottom pb-2 mb-3">Analytics (Google GA4)</legend>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label for="ga4_measurement_id" class="form-label">Measurement ID</label>
+                                        <input
+                                            type="text"
+                                            class="form-control font-monospace"
+                                            id="ga4_measurement_id"
+                                            name="ga4_measurement_id"
+                                            value="{{ old('ga4_measurement_id', $data->ga4_measurement_id ?? '') }}"
+                                            placeholder="G-XXXXXXXXXX"
+                                            maxlength="32">
+                                        <p class="text-muted small mb-0 mt-1">Used to load GA4 tracking on public pages.</p>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <label for="ga4_reports_url" class="form-label">Google Analytics reports URL</label>
+                                        <input
+                                            type="url"
+                                            class="form-control font-monospace small"
+                                            id="ga4_reports_url"
+                                            name="ga4_reports_url"
+                                            value="{{ old('ga4_reports_url', $data->ga4_reports_url ?? '') }}"
+                                            placeholder="https://analytics.google.com/analytics/web/#/...">
+                                        <p class="text-muted small mb-0 mt-1">Optional shortcut shown on the admin dashboard.</p>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <fieldset class="mb-0">
                                 <legend class="h6 text-secondary border-bottom pb-2 mb-3">Logos</legend>
                                 <div class="row g-3">
                                     <div class="col-md-6">
@@ -161,13 +209,21 @@
                                         </select>
                                         <p class="text-muted small mb-0 mt-1">Shown below the footer logo on the public site (out of 5).</p>
                                     </div>
+                                    <div class="col-12 col-md-6">
+                                        <label for="price_currency" class="form-label">Website price currency display</label>
+                                        <select class="form-select" id="price_currency" name="price_currency">
+                                            <option value="usd" @selected(($data->price_currency ?? 'usd') === 'usd')>USD ($)</option>
+                                            <option value="rwf" @selected(($data->price_currency ?? 'usd') === 'rwf')>RWF (RWF)</option>
+                                        </select>
+                                        <p class="text-muted small mb-0 mt-1">Controls how room prices are shown on public pages.</p>
+                                    </div>
                                 </div>
                             </fieldset>
-                            <div class="pt-2">
-                                <button type="submit" class="btn btn-primary">Save Contacts & Logo</button>
-                            </div>
-                        </form>
                     </div>
+                    <div class="card-footer bg-light border-top py-3 d-flex justify-content-end gap-2 flex-wrap">
+                        <button type="submit" class="btn btn-primary">Save Contacts &amp; Logo</button>
+                    </div>
+                        </form>
                 </div>
             </div>
 
@@ -181,9 +237,9 @@
                             Leave a field empty to use the default from the server environment.
                         </p>
                     </div>
-                    <div class="card-body">
                         <form action="{{ route('setting.channel-links.update') }}" method="POST">
                             @csrf
+                    <div class="card-body border-bottom-0 pb-4">
                             <fieldset class="mb-4">
                                 <legend class="h6 text-secondary border-bottom pb-2 mb-3">Booking.com</legend>
                                 <label class="form-label" for="booking_com_url">Booking.com property URL</label>
@@ -272,7 +328,7 @@
                                     </div>
                                 </div>
                             </fieldset>
-                            <fieldset class="mb-4">
+                            <fieldset class="mb-0">
                                 <legend class="h6 text-secondary border-bottom pb-2 mb-3">WhatsApp &amp; email (CTAs)</legend>
                                 <div class="row g-3">
                                     <div class="col-md-6">
@@ -290,9 +346,11 @@
                                     </div>
                                 </div>
                             </fieldset>
-                            <button type="submit" class="btn btn-primary">Save booking &amp; review links</button>
-                        </form>
                     </div>
+                    <div class="card-footer bg-light border-top py-3 d-flex justify-content-end gap-2 flex-wrap">
+                            <button type="submit" class="btn btn-primary">Save booking &amp; review links</button>
+                    </div>
+                        </form>
                 </div>
             </div>
 
@@ -303,9 +361,9 @@
                         <h5 class="mb-1">About Hotel</h5>
                         <p class="text-muted small mb-0">About-us content and images for the public site.</p>
                     </div>
-                    <div class="card-body">
-                        <form action="{{ route('content-management.about.update') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('content-management.about.update') }}" method="POST" enctype="multipart/form-data" class="settings-about-form">
                             @csrf
+                    <div class="card-body border-bottom-0 pb-4">
                             <fieldset class="mb-4">
                                 <legend class="h6 text-secondary border-bottom pb-2 mb-3">Main content</legend>
                                 <div class="mb-3">
@@ -317,11 +375,12 @@
                                     <input type="text" class="form-control" name="subTitle" value="{{ optional($about)->subTitle ?? '' }}">
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label">About description</label>
+                                    <label class="form-label" for="founderDescription">About page narrative</label>
+                                    <p class="text-muted small mb-2">Story text for the public About / home sections. Legal policies belong under <strong>Terms &amp; Conditions</strong>.</p>
                                     <textarea class="form-control" name="founderDescription" rows="6" id="founderDescription">{{ optional($about)->founderDescription ?? '' }}</textarea>
                                 </div>
                             </fieldset>
-                            <fieldset class="mb-4">
+                            <fieldset class="mb-0">
                                 <legend class="h6 text-secondary border-bottom pb-2 mb-3">Images</legend>
                                 <div class="row g-3">
                                     <div class="col-md-6 col-lg-3">
@@ -361,11 +420,35 @@
                                     </div>
                                 </div>
                             </fieldset>
-                            <div class="pt-2">
-                                <button type="submit" class="btn btn-primary">Update About Hotel</button>
-                            </div>
-                        </form>
                     </div>
+                    <div class="card-footer bg-light border-top py-3 d-flex justify-content-end gap-2 flex-wrap">
+                                <button type="submit" class="btn btn-primary">Update About Hotel</button>
+                    </div>
+                        </form>
+                </div>
+            </div>
+
+            {{-- Tab id must NOT be "terms": global admin/js/summernote.js binds $('#terms') to a textarea on legacy pages --}}
+            <div id="tab-terms" class="tab-pane fade">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-1">Terms &amp; Conditions</h5>
+                        <p class="text-muted small mb-0">Legal and policy content shown on the Terms page.</p>
+                    </div>
+                        {{-- Single form; save action is pinned in card-footer so it cannot be scrolled off-screen --}}
+                        <form action="{{ route('content-management.terms.update') }}" method="POST" class="settings-terms-form">
+                            @csrf
+                    <div class="card-body border-bottom-0 pb-2">
+                            <div class="mb-0 settings-terms-editor-wrap">
+                                <label class="form-label" for="termsContent">Terms content</label>
+                                <p class="text-muted small mb-2">Use the editor for headings, lists, and links; saved HTML is shown on the public Terms page.</p>
+                                <textarea class="form-control" name="content" rows="16" id="termsContent">{{ $terms->content ?? '' }}</textarea>
+                            </div>
+                    </div>
+                    <div class="card-footer bg-light border-top py-3 d-flex justify-content-end gap-2 flex-wrap">
+                                <button type="submit" class="btn btn-primary px-4">Save Terms &amp; Conditions</button>
+                    </div>
+                        </form>
                 </div>
             </div>
 
@@ -377,9 +460,9 @@
                         <h5 class="mb-1">Delivered by (footer)</h5>
                         <p class="text-muted small mb-0">Controls the credit line in the site footer. Only visible to the designated administrator account.</p>
                     </div>
-                    <div class="card-body">
                         <form action="{{ route('setting.footer-delivered-by.update') }}" method="POST">
                             @csrf
+                    <div class="card-body border-bottom-0 pb-4">
                             <div class="form-check form-switch mb-4">
                                 <input type="hidden" name="footer_delivered_by_enabled" value="0">
                                 <input
@@ -419,11 +502,11 @@
                                     <p class="text-muted small mb-0 mt-1">If empty, the name is shown without a link.</p>
                                 </div>
                             </div>
-                            <div class="pt-3">
-                                <button type="submit" class="btn btn-primary">Save footer credit</button>
-                            </div>
-                        </form>
                     </div>
+                    <div class="card-footer bg-light border-top py-3 d-flex justify-content-end gap-2 flex-wrap">
+                                <button type="submit" class="btn btn-primary">Save footer credit</button>
+                    </div>
+                        </form>
                 </div>
             </div>
             @endif
@@ -435,25 +518,105 @@
                         <h5 class="mb-1">SEO Keywords</h5>
                         <p class="text-muted small mb-0">Keywords used in the site header meta tag. Separate with commas.</p>
                     </div>
-                    <div class="card-body">
                         <form action="{{ route('setting.keywords.update') }}" method="POST">
                             @csrf
-                            <label class="form-label">Header keywords</label>
-                            <textarea class="form-control" name="keywords" rows="6" id="seoKeywords" placeholder="keyword1, keyword2, keyword3">{{ $data->keywords ?? '' }}</textarea>
-                            <div class="pt-3">
-                                <button type="submit" class="btn btn-primary">Save keywords</button>
-                            </div>
-                        </form>
+                    <div class="card-body border-bottom-0 pb-4">
+                            <label class="form-label" for="seoKeywords">Header keywords</label>
+                            <textarea class="form-control" name="keywords" rows="8" id="seoKeywords" placeholder="keyword1, keyword2, keyword3">{{ $data->keywords ?? '' }}</textarea>
                     </div>
+                    <div class="card-footer bg-light border-top py-3 d-flex justify-content-end gap-2 flex-wrap">
+                                <button type="submit" class="btn btn-primary">Save keywords</button>
+                    </div>
+                        </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
+@endsection
 
+@push('scripts')
 <script>
-$(document).ready(function() {
-    $('#founderDescription').summernote({ height: 300 });
+jQuery(function ($) {
+    var settingsTermsToolbar = [
+        ['style', ['style']],
+        ['font', ['bold', 'underline', 'clear']],
+        ['color', ['color']],
+        ['para', ['ul', 'ol', 'paragraph']],
+        ['table', ['table']],
+        ['insert', ['link', 'picture', 'video']],
+        ['view', ['fullscreen', 'codeview', 'help']]
+    ];
+
+    function initAboutEditor() {
+        var $el = $('#founderDescription');
+        if (!$el.length || $el.next('.note-editor').length) {
+            return;
+        }
+        $el.summernote({
+            placeholder: 'Intro and story shown on About / Home…',
+            tabsize: 2,
+            height: 300,
+            disableResizeEditor: true,
+            toolbar: settingsTermsToolbar
+        });
+    }
+
+    function initTermsEditor() {
+        var $tc = $('#termsContent');
+        if (!$tc.length || $tc.next('.note-editor').length) {
+            return;
+        }
+        $tc.summernote({
+            placeholder: 'Hotel policies and terms…',
+            tabsize: 2,
+            height: 420,
+            disableResizeEditor: true,
+            toolbar: settingsTermsToolbar
+        });
+    }
+
+    // Bootstrap 5
+    $(document).on('shown.bs.tab', 'a[data-bs-toggle="tab"][href="#about"]', function () {
+        initAboutEditor();
+    });
+    $(document).on('shown.bs.tab', 'a[data-bs-toggle="tab"][href="#tab-terms"]', function () {
+        initTermsEditor();
+    });
+    // Bootstrap 4 (some admin JS still uses data-toggle)
+    $(document).on('shown.bs.tab', 'a[data-toggle="tab"][href="#about"]', function () {
+        initAboutEditor();
+    });
+    $(document).on('shown.bs.tab', 'a[data-toggle="tab"][href="#tab-terms"]', function () {
+        initTermsEditor();
+    });
+
+    if (window.location.hash === '#about' || document.querySelector('.nav-link.active[href="#about"]')) {
+        initAboutEditor();
+    }
+    if (window.location.hash === '#tab-terms' || window.location.hash === '#terms' || document.querySelector('.nav-link.active[href="#tab-terms"]')) {
+        initTermsEditor();
+    }
+    if ($('#about').hasClass('active') || $('#about').hasClass('show')) {
+        initAboutEditor();
+    }
+    if ($('#tab-terms').hasClass('active') || $('#tab-terms').hasClass('show')) {
+        initTermsEditor();
+    }
+
+    $(document).on('submit', '.settings-terms-form', function () {
+        var $t = $('#termsContent');
+        if ($t.length && $t.next('.note-editor').length) {
+            $t.val($t.summernote('code'));
+        }
+    });
+
+    $(document).on('submit', '.settings-about-form', function () {
+        var $el = $('#founderDescription');
+        if ($el.length && $el.next('.note-editor').length) {
+            $el.val($el.summernote('code'));
+        }
+    });
 });
 </script>
-@endsection
+@endpush

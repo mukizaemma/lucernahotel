@@ -27,6 +27,7 @@
             <a href="{{ route('eventsPage') }}" class="nav-item nav-link"> <i class="fas fa-map-marked-alt me-2"></i>Meetings &amp; Events</a>
             <a href="{{ route('getFacilities') }}" class="nav-item nav-link"> <i class="fas fa-concierge-bell me-2"></i>Facilities</a>
             <a href="{{ route('getBlogs') }}" class="nav-item nav-link"> <i class="fas fa-pen-nib me-2"></i>Updates</a>
+            <a href="{{ route('staff') }}" class="nav-item nav-link"> <i class="fas fa-user-friends me-2"></i>Team Members</a>
 
             <a href="{{ route('slides') }}" class="nav-item nav-link"><i class="fas fas fa-images me-2"></i>Home Slide</a> 
             <a href="{{ route('getImages') }}" class="nav-item nav-link"><i class="fas fas fa-images me-2"></i>Gallery</a> 

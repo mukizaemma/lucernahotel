@@ -94,7 +94,7 @@
                         <h2 class="room__title">{{ $room->title }}</h2>
                         <div class="text-end">
                             <span class="h4 price" style="color: #0356b7; font-weight: 600;">
-                                ${{ number_format($room->price ?? 0, 0) }}<span class="h6 fw-normal">/night</span>
+                                {{ hotel_price($room->price ?? 0, $setting) }}<span class="h6 fw-normal">/night</span>
                             </span>
                             <p class="mb-0 small text-muted" style="max-width: 280px; margin-left: auto;">
                                 Base rate covers up to <strong>{{ (int) ($room->guests_included_in_price ?? 2) }}</strong> guest(s).
@@ -110,13 +110,13 @@
                         <strong class="d-block mb-2" style="color: #0356b7;">Additional rates (per night)</strong>
                         <ul class="mb-0 ps-3 small">
                             @if($room->extra_adult_price)
-                                <li>Extra adult (beyond included guests): <strong>${{ number_format($room->extra_adult_price, 0) }}</strong></li>
+                                <li>Extra adult (beyond included guests): <strong>{{ hotel_price($room->extra_adult_price, $setting) }}</strong></li>
                             @endif
                             @if($room->extra_child_price)
-                                <li>Extra child (beyond included guests): <strong>${{ number_format($room->extra_child_price, 0) }}</strong></li>
+                                <li>Extra child (beyond included guests): <strong>{{ hotel_price($room->extra_child_price, $setting) }}</strong></li>
                             @endif
                             @if($room->extra_bed_price)
-                                <li>Extra bed: <strong>${{ number_format($room->extra_bed_price, 0) }}</strong></li>
+                                <li>Extra bed: <strong>{{ hotel_price($room->extra_bed_price, $setting) }}</strong></li>
                             @endif
                         </ul>
                     </div>
@@ -189,7 +189,7 @@
                     <div class="d-flex align-items-baseline justify-content-center gap-2 mb-30 flex-wrap text-center">
                         <h3 class="mb-0">‘<span style="color: #0356b7;">{{ $room->title }}</span>’</h3>
                         <span class="h5 mb-0" style="color: #0356b7; font-weight: 700;">
-                            from ${{ number_format($room->price ?? 0, 0) }}/night
+                            from {{ hotel_price($room->price ?? 0, $setting) }}/night
                         </span>
                     </div>
                     <p class="text-muted text-center small mb-4">
@@ -232,7 +232,7 @@
                             {{ $similarRoom->title }}
                         </a>
                         <div style="font-size: 18px; font-weight: bold; color: #0356b7; margin-bottom: 15px;">
-                            ${{ number_format($similarRoom->price, 0) }}/Night
+                            {{ hotel_price($similarRoom->price, $setting) }}/Night
                         </div>
                         <a wire:navigate href="{{ route('room',['slug'=>$similarRoom->slug]) }}" 
                            class="theme-btn btn-style sm-btn fill" 

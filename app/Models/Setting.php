@@ -53,6 +53,9 @@ class Setting extends Model
         'whatsapp_e164',
         'whatsapp_default_message',
         'channel_contact_email',
+        'ga4_measurement_id',
+        'ga4_reports_url',
+        'price_currency',
     ];
 
     protected $casts = [
@@ -64,5 +67,6 @@ class Setting extends Model
         'tripadvisor_review_count' => 'integer',
         'google_review_score' => 'decimal:1',
         'google_review_count' => 'integer',
+        'price_currency' => 'string',
     ];
 }

@@ -13,18 +13,37 @@ use Illuminate\Validation\Rule;
 
 class UserManagementController extends Controller
 {
+    private function canManageAllUsers(): bool
+    {
+        return auth()->check() && strtolower((string) auth()->user()->email) === 'admin@iremetech.com';
+    }
+
+    private function ensureManageAllUsersOrAbort(): void
+    {
+        if (! $this->canManageAllUsers()) {
+            abort(403, 'Only admin@iremetech.com can manage users.');
+        }
+    }
+
     public function index()
     {
-        $users = User::with('role')->latest()->get();
+        $isManager = $this->canManageAllUsers();
+        $usersQuery = User::with('role')->latest();
+        if (! $isManager) {
+            $usersQuery->where('id', auth()->id());
+        }
+        $users = $usersQuery->get();
         // Super Admin is seeded only — not assignable here
         $roles = Role::whereIn('slug', ['admin', 'guest'])->orderBy('name')->get();
         $superAdminRole = Role::where('slug', 'super-admin')->first();
 
-        return view('content-management.users.index', compact('users', 'roles', 'superAdminRole'));
+        return view('content-management.users.index', compact('users', 'roles', 'superAdminRole', 'isManager'));
     }
 
     public function store(Request $request)
     {
+        $this->ensureManageAllUsersOrAbort();
+
         $allowedRoleIds = Role::whereIn('slug', ['admin', 'guest'])->pluck('id')->all();
 
         $request->validate([
@@ -66,6 +85,8 @@ class UserManagementController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->ensureManageAllUsersOrAbort();
+
         $user = User::findOrFail($id);
         $allowedRoleIds = Role::whereIn('slug', ['admin', 'guest'])->pluck('id')->all();
         $superAdminRoleId = Role::where('slug', 'super-admin')->value('id');
@@ -95,6 +116,8 @@ class UserManagementController extends Controller
 
     public function verifyEmail($id)
     {
+        $this->ensureManageAllUsersOrAbort();
+
         $user = User::findOrFail($id);
         $user->email_verified_at = now();
         $user->email_verified_by = auth()->id();
@@ -106,6 +129,8 @@ class UserManagementController extends Controller
 
     public function resendVerification($id)
     {
+        $this->ensureManageAllUsersOrAbort();
+
         $user = User::findOrFail($id);
         
         if (!$user->verification_token) {
@@ -120,6 +145,8 @@ class UserManagementController extends Controller
 
     public function destroy($id)
     {
+        $this->ensureManageAllUsersOrAbort();
+
         $user = User::findOrFail($id);
         $user->delete();
 
@@ -128,6 +155,10 @@ class UserManagementController extends Controller
 
     public function show($id)
     {
+        if (! $this->canManageAllUsers() && (int) $id !== (int) auth()->id()) {
+            abort(403);
+        }
+
         $user = User::with('role')->findOrFail($id);
         return response()->json($user);
     }
@@ -138,6 +169,8 @@ class UserManagementController extends Controller
      */
     public function resetPassword(Request $request, $id)
     {
+        $this->ensureManageAllUsersOrAbort();
+
         $request->validate([
             'password' => 'required|string|min:8|confirmed',
         ]);
