@@ -351,8 +351,24 @@
     <!-- header area -->
     @php
         $hotelContactHeader = \App\Models\HotelContact::first();
-        $headerPhone = $hotelContactHeader?->phone ?? $setting?->phone ?? '';
+        $receptionPhoneHeader = trim((string) ($setting?->reception_phone ?? ''));
+        $headerPhone = filled($receptionPhoneHeader)
+            ? $receptionPhoneHeader
+            : ($hotelContactHeader?->phone ?? $setting?->phone ?? '');
         $headerEmail = $hotelContactHeader?->email ?? $setting?->email ?? '';
+        $headerWhatsappDigits = '';
+        if (filled(trim((string) ($setting?->whatsapp_e164 ?? '')))) {
+            $headerWhatsappDigits = preg_replace('/\D+/', '', (string) $setting->whatsapp_e164);
+        } elseif (filled($receptionPhoneHeader)) {
+            $headerWhatsappDigits = preg_replace('/\D+/', '', $receptionPhoneHeader);
+        } elseif ($hotelContactHeader && filled($hotelContactHeader->whatsapp)) {
+            $headerWhatsappDigits = preg_replace('/\D+/', '', $hotelContactHeader->whatsapp);
+        }
+        $headerWhatsappLabel = filled($receptionPhoneHeader)
+            ? $receptionPhoneHeader
+            : (($hotelContactHeader && filled($hotelContactHeader->whatsapp))
+                ? $hotelContactHeader->whatsapp
+                : trim((string) ($setting?->whatsapp_e164 ?? '')));
         $headerAddress = '';
         if ($hotelContactHeader) {
             $headerAddress = trim(implode(' ', array_filter([
@@ -389,8 +405,8 @@
                         @if(filled($headerPhone))
                         <a class="link__item gap-10" href="tel:{{ preg_replace('/\s+/', '', $headerPhone) }}"><i class="flaticon-phone-flip"></i> {{ $headerPhone }}</a>
                         @endif
-                        @if($hotelContactHeader && filled($hotelContactHeader->whatsapp))
-                        <a class="link__item gap-10" href="https://wa.me/{{ preg_replace('/\D/', '', $hotelContactHeader->whatsapp) }}" target="_blank" rel="noopener noreferrer" title="WhatsApp"><i class="fab fa-whatsapp" style="color:#25D366"></i> {{ $hotelContactHeader->whatsapp }}</a>
+                        @if(filled($headerWhatsappDigits))
+                        <a class="link__item gap-10" href="https://wa.me/{{ $headerWhatsappDigits }}" target="_blank" rel="noopener noreferrer" title="WhatsApp"><i class="fab fa-whatsapp" style="color:#25D366"></i> {{ $headerWhatsappLabel }}</a>
                         @endif
                         @if(filled($headerEmail))
                         <a class="link__item gap-10" href="mailto:{{ $headerEmail }}"><i class="flaticon-envelope"></i> {{ $headerEmail }}</a>
@@ -933,11 +949,26 @@
                                     </a>
                                 </li>
                             @endif
-                            @if($ftHotel && filled($ftHotel->whatsapp))
+                            @php
+                                $footerWhatsappDigits = '';
+                                if (filled(trim((string) ($setting->whatsapp_e164 ?? '')))) {
+                                    $footerWhatsappDigits = preg_replace('/\D+/', '', (string) $setting->whatsapp_e164);
+                                } elseif (filled(trim((string) ($setting->reception_phone ?? '')))) {
+                                    $footerWhatsappDigits = preg_replace('/\D+/', '', (string) $setting->reception_phone);
+                                } elseif ($ftHotel && filled($ftHotel->whatsapp)) {
+                                    $footerWhatsappDigits = preg_replace('/\D+/', '', $ftHotel->whatsapp);
+                                }
+                                $footerWhatsappLabel = filled(trim((string) ($setting->reception_phone ?? '')))
+                                    ? trim((string) $setting->reception_phone)
+                                    : (($ftHotel && filled($ftHotel->whatsapp))
+                                        ? $ftHotel->whatsapp
+                                        : trim((string) ($setting->whatsapp_e164 ?? '')));
+                            @endphp
+                            @if(filled($footerWhatsappDigits))
                                 <li>
-                                    <a href="https://wa.me/{{ preg_replace('/\D/', '', $ftHotel->whatsapp) }}" target="_blank" rel="noopener noreferrer" class="footer-contact-list__a">
+                                    <a href="https://wa.me/{{ $footerWhatsappDigits }}" target="_blank" rel="noopener noreferrer" class="footer-contact-list__a">
                                         <span class="footer-contact-list__icon footer-contact-list__icon--wa" aria-hidden="true"><i class="fab fa-whatsapp"></i></span>
-                                        <span>{{ $ftHotel->whatsapp }}</span>
+                                        <span>{{ $footerWhatsappLabel }}</span>
                                     </a>
                                 </li>
                             @endif
