@@ -163,6 +163,81 @@
             border-radius: 10px;
             box-shadow: 0 8px 16px rgba(3, 86, 183, 0.24);
         }
+        /* Phone + email beside logo on small screens (top bar is hidden <576px) */
+        .main__header__contacts {
+            font-size: 0.7rem;
+            line-height: 1.2;
+            max-width: min(56vw, 14rem);
+        }
+        .main__header__contacts a {
+            color: #111111;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.25rem;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .main__header__contacts a:hover {
+            color: var(--brand-primary);
+        }
+        .main__header__contacts .main__header__contacts-icon {
+            color: var(--brand-primary);
+            flex-shrink: 0;
+            margin-top: 1px;
+            font-size: 0.65rem;
+        }
+        .main__header__contacts span.text-truncate {
+            display: inline-block;
+            max-width: 100%;
+            vertical-align: bottom;
+        }
+        /* Home hero: full viewport height, same for every slide */
+        .livewire-home-page .banner__area.is__home__one.banner__height {
+            min-height: 100vh;
+            min-height: 100dvh;
+            padding-block: 0;
+        }
+        .livewire-home-page .banner__area.is__home__one .banner__slider {
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+        .livewire-home-page .banner__area.is__home__one .banner__slider .swiper-wrapper {
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+        .livewire-home-page .banner__area.is__home__one .banner__slider .swiper-slide {
+            position: relative;
+            min-height: 100vh;
+            min-height: 100dvh;
+            height: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+        .livewire-home-page .banner__slider__image {
+            z-index: 0;
+        }
+        .livewire-home-page .banner__area.is__home__one .swiper-slide > .container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            pointer-events: none;
+        }
+        .livewire-home-page .banner__area.is__home__one .swiper-slide > .container a {
+            pointer-events: auto;
+        }
+        .livewire-home-page .banner__slide__content {
+            padding-top: clamp(4rem, 12vh, 9rem);
+            padding-bottom: clamp(4rem, 12vh, 9rem);
+        }
+        .livewire-home-page .banner__slider__image img,
+        .livewire-home-page .banner__slider__image video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
         /* Custom preloader: logo + animation (overrides template default) */
         .loader-wrapper {
             background: linear-gradient(145deg, #f8f9fa 0%, #ffffff 100%);
@@ -345,8 +420,26 @@
         <div class="container">
             <div class="row">
                 <div class="main__header__wrapper">
-                    <div class="main__logo">
-                        <a wire:navigate href="{{ route('home')}}"><img class="logo__class" src="{{ asset('storage/images') . $setting?->logo }}" alt="moonlit" width="90px"></a>
+                    <div class="d-flex align-items-center min-w-0 flex-shrink-1 gap-2">
+                        <div class="main__logo">
+                            <a wire:navigate href="{{ route('home')}}"><img class="logo__class" src="{{ asset('storage/images') . $setting?->logo }}" alt="moonlit" width="90px"></a>
+                        </div>
+                        @if((filled($headerPhone) || filled($headerEmail)))
+                        <div class="main__header__contacts d-flex d-sm-none flex-column justify-content-center gap-1 text-start min-w-0" aria-label="Contact shortcuts">
+                            @if(filled($headerPhone))
+                            <a class="link__item" href="tel:{{ preg_replace('/\s+/', '', $headerPhone) }}">
+                                <i class="fas fa-phone main__header__contacts-icon" aria-hidden="true"></i>
+                                <span class="text-truncate">{{ $headerPhone }}</span>
+                            </a>
+                            @endif
+                            @if(filled($headerEmail))
+                            <a class="link__item" href="mailto:{{ $headerEmail }}">
+                                <i class="fas fa-envelope main__header__contacts-icon" aria-hidden="true"></i>
+                                <span class="text-truncate">{{ $headerEmail }}</span>
+                            </a>
+                            @endif
+                        </div>
+                        @endif
                     </div>
                     <div class="main__nav">
                         <div class="navigation d-none d-lg-block">
