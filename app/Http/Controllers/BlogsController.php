@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Blog;
 use App\Models\User;
-use App\Models\Program;
 use App\Models\Setting;
 use App\Models\Subscriber;
 use App\Models\BlogComment;
@@ -42,11 +41,9 @@ class BlogsController extends Controller
                 return $post;
             });
     
-        $programs = Program::all();
         $setting = Setting::first();
     
         return view('admin.posts.blogs', [
-            'programs' => $programs,
             'latestBlogs' => $latestBlogs,
             'mostViewedBlogs' => $mostViewedBlogs,
             'setting' => $setting,
@@ -91,10 +88,8 @@ class BlogsController extends Controller
         $post = Blog::find($id);
         $comments = BlogComment::where('blog_id',$post->id)->latest()->get();
         $totalComments = $comments->count();
-        $program= Program::all();
         return view('admin.posts.blogView', [
             'post'=>$post,
-            'program'=>$program,
             'comments'=>$comments,
             'totalComments'=>$totalComments
         ]);

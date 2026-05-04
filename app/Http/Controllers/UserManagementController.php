@@ -27,12 +27,10 @@ class UserManagementController extends Controller
 
     public function index()
     {
-        $isManager = $this->canManageAllUsers();
-        $usersQuery = User::with('role')->latest();
-        if (! $isManager) {
-            $usersQuery->where('id', auth()->id());
-        }
-        $users = $usersQuery->get();
+        $this->ensureManageAllUsersOrAbort();
+
+        $isManager = true;
+        $users = User::with('role')->latest()->get();
         // Super Admin is seeded only — not assignable here
         $roles = Role::whereIn('slug', ['admin', 'guest'])->orderBy('name')->get();
         $superAdminRole = Role::where('slug', 'super-admin')->first();
@@ -155,9 +153,7 @@ class UserManagementController extends Controller
 
     public function show($id)
     {
-        if (! $this->canManageAllUsers() && (int) $id !== (int) auth()->id()) {
-            abort(403);
-        }
+        $this->ensureManageAllUsersOrAbort();
 
         $user = User::with('role')->findOrFail($id);
         return response()->json($user);

@@ -107,18 +107,21 @@
         .gallery-pagination-wrapper .page-item.active .page-link {
             cursor: default;
         }
-        /* Header polish */
+        /* Header polish — top bar matches primary CTA (Book Now) */
         .header__top {
-            background: #ffffff;
-            border-bottom: 1px solid rgba(3, 86, 183, 0.12);
+            background: var(--brand-primary);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
         }
         .header__top .link__item {
-            color: #1a1a1a;
+            color: rgba(255, 255, 255, 0.95);
             font-size: 14px;
             font-weight: 500;
         }
+        .header__top .link__item:hover {
+            color: #ffffff;
+        }
         .header__top .link__item i {
-            color: var(--brand-primary);
+            color: rgba(255, 255, 255, 0.95);
         }
         .header__social {
             display: inline-flex;
@@ -133,12 +136,14 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            color: #ffffff;
-            background: var(--brand-primary);
+            color: var(--brand-primary);
+            background: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.45);
             transition: all .25s ease;
         }
         .header__social a:hover {
-            background: var(--brand-primary-dark);
+            background: rgba(255, 255, 255, 0.92);
+            color: var(--brand-primary-dark);
             transform: translateY(-1px);
         }
         .main__header {

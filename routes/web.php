@@ -74,8 +74,7 @@ Route::middleware(['auth', 'admin'])->prefix('content-management')->name('conten
     Route::post('/seo-data/update', [App\Http\Controllers\ContentManagementController::class, 'updateSeoData'])->name('seo.update');
     Route::post('/seo-data/store', [App\Http\Controllers\ContentManagementController::class, 'updateSeoData'])->name('seo.store');
     
-    // System Users: only admin@iremetech.com can CRUD all users.
-    // Other admin users can access the page but only view themselves.
+    // System Users: only admin@iremetech.com (see UserManagementController).
     Route::get('/users', UserManagementIndex::class)->name('users');
     Route::post('/users/store', [App\Http\Controllers\UserManagementController::class, 'store'])->name('users.store');
     Route::get('/users/{id}', [App\Http\Controllers\UserManagementController::class, 'show'])->name('users.show');

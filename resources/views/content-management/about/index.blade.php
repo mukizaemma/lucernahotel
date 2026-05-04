@@ -14,7 +14,7 @@
             <li class="nav-item">
                 <a class="nav-link" data-bs-toggle="tab" href="#seo">SEO Data</a>
             </li>
-                @if(auth()->user()->isSuperAdmin())
+                @if(strtolower((string) auth()->user()->email) === 'admin@iremetech.com')
             <li class="nav-item">
                 <a class="nav-link" data-bs-toggle="tab" href="#users">System Users</a>
             </li>
@@ -133,7 +133,7 @@
                     </div>
                 </div>
             </div>
-            @if(auth()->user()->isSuperAdmin())
+            @if(strtolower((string) auth()->user()->email) === 'admin@iremetech.com')
             <div id="users" class="tab-pane fade">
                 @php 
                     $users = App\Models\User::with('role')->latest()->get();
