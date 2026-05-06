@@ -13916,9 +13916,9 @@ textarea:focus-visible, input:focus-visible {
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(15, 23, 42, 0) 35%,
-    rgba(15, 23, 42, 0.55) 65%,
-    rgba(15, 23, 42, 0.88) 100%
+    rgba(15, 23, 42, 0) 28%,
+    rgba(15, 23, 42, 0.72) 68%,
+    rgba(15, 23, 42, 0.94) 100%
   );
   pointer-events: none;
 }
@@ -13937,9 +13937,10 @@ textarea:focus-visible, input:focus-visible {
   font-family: "Playfair Display", Georgia, serif;
   font-size: 1.2rem;
   font-weight: 600;
+  color: #fff;
   margin: 0 0 0.35rem;
   line-height: 1.25;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+  text-shadow: 0 3px 14px rgba(0, 0, 0, 0.75);
 }
 
 .dining-cuisine-card__summary {
